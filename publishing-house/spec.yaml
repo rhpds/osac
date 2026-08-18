@@ -16,8 +16,8 @@ project:
   automation_type: "ansible"
   description: "Open Sovereign AI Cloud (or whatever it will be called) hands-on lab"
   # content_reviewer_email and infra_reviewer_email are assigned by the RHDP team — not set by the author
-  jira_ticket: ""
-  workflow_id: ""
+  jira_ticket: "RHDPCD-1059"
+  workflow_id: "85c1cfbd-2bae-4a23-a3a8-10ba2344ea0b"
 
 spec:
   title: ""
