@@ -69,7 +69,7 @@ Participants access a pre-deployed OSAC environment running on Red Hat OpenShift
 - **Control plane:** 3 nodes, 16 vCPU, 32GB RAM each
 - **Workers:** 2 nodes (default; up to 5), 64 vCPU, 128GB RAM, 512GB root disk, 2×2TB extra disks each
 - **Automation:** Ansible (`rhpds.sovereign_cloud.ocp4_workload_osac`)
-- **Provisioning time:** ~55 min total (~25 min cluster + ~30 min OSAC deployment)
+- **Provisioning time:** ~110 min total (~75 min base cluster + ~25 min OSAC deployment)
 - **AI/MaaS:** TBD
 - **External services:** github.com, quay.io, mirror.openshift.com, rhdp-private.s3.us-east-1.amazonaws.com (AAP license)
 - **Non-GA products:** None

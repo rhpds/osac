@@ -21,7 +21,12 @@ project:
 
 spec:
   title: "Open Sovereign AI Cloud: Tenant Administration and VM Lifecycle"
-  learning_objectives: []
+  learning_objectives:
+  - "Create and manage OSAC tenants using the admin interface"
+  - "Build and publish VM templates for use within an OSAC tenant"
+  - "Configure virtual networks, subnetworks, and security groups for tenant isolation"
+  - "Provision and manage virtual machines within an OSAC tenant environment"
+  - "Explore OSAC as an end user to request and access VM resources"
   modules:                 # [{id, title, duration_min}] — written by intake Phase 4; id is stable (e.g. module-01)
   - id: module-01
     title: "OSAC Platform Orientation"
