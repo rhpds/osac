@@ -22,7 +22,27 @@ project:
 spec:
   title: "Open Sovereign AI Cloud: Tenant Administration and VM Lifecycle"
   learning_objectives: []
-  modules: []              # [{id, title, duration_min}] — written by intake Phase 4; id is stable (e.g. module-01)
+  modules:                 # [{id, title, duration_min}] — written by intake Phase 4; id is stable (e.g. module-01)
+  - id: module-01
+    title: "OSAC Platform Orientation"
+    duration_min: 10
+    status: not_started
+  - id: module-02
+    title: "Tenant Administration"
+    duration_min: 20
+    status: not_started
+  - id: module-03
+    title: "VM Templates"
+    duration_min: 15
+    status: not_started
+  - id: module-04
+    title: "Virtual Networking"
+    duration_min: 20
+    status: not_started
+  - id: module-05
+    title: "Virtual Machine Lifecycle"
+    duration_min: 20
+    status: not_started
   environment:
     platform: ""               # ocp | rhel-vms — determines which sizing fields apply
     topology: ""               # shared-cluster | per-student | cnv-pool
@@ -79,7 +99,7 @@ tracking:
 approval_checklist:
 
   content:
-    prerequisites_verifiable: null
+    prerequisites_verifiable: false
     assessment_strategy: ""
     catalog_gap: ""
     design_overview: ""

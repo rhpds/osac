@@ -1,89 +1,79 @@
-# [Project Title]
-
-<!-- This file is the design document for your lab or demo. -->
-<!-- Fill in each section below, or run /rhdp-publishing-house to have the intake skill help. -->
-<!-- Sections marked with [brackets] are placeholders — replace with real content. -->
-<!-- The validation gate checks for all required sections before submission. -->
+# Open Sovereign AI Cloud: Tenant Administration and VM Lifecycle
 
 ## Overview
 
-[2-3 sentences on what this lab or demo is and why it exists. Then a direct description of what participants will do — specific enough that someone reading this section immediately understands the content without interpretation. No flowery language. Example: "Participants will deploy a 3-tier application on OpenShift, configure autoscaling, and troubleshoot a simulated pod failure."]
+This lab introduces participants to the Open Sovereign AI Cloud (OSAC) platform — a sovereign cloud solution built on Red Hat OpenShift that provides multi-tenant virtual machine infrastructure with integrated identity management and networking. Participants take on the role of an OSAC administrator to set up and operate the platform, then switch to the end-user perspective to consume those resources.
+
+The lab covers the full operational workflow: creating and managing tenants, building VM templates, configuring virtual networks and security policies, and provisioning virtual machines — giving participants the hands-on skills to operate an OSAC environment from both the admin and user perspective.
 
 ## Target Audience
 
-- **Role:** [Data scientists, platform engineers, developers, etc.]
-- **Experience level:** [Beginner, intermediate, or advanced]
-- **What they already know:** [Existing skills and knowledge]
-- **What they don't know:** [Skills this lab teaches]
+OSAC administrators, platform engineers, and operations teams responsible for deploying, configuring, and operating OSAC environments. Participants should have basic familiarity with Red Hat OpenShift (navigating the console, understanding namespaces) and general cloud concepts such as tenants, virtual networks, and virtual machines. Prior knowledge of Sovereign Cloud concepts is helpful but not required.
 
 ## Prerequisites
 
-- [What the learner must know or have completed before starting]
-- [Can the lab validate these automatically? Yes/No — brief explanation]
-
-<!-- If no prerequisites, write "None" -->
+- Basic familiarity with Red Hat OpenShift (console navigation, namespaces)
+- Understanding of general cloud concepts: tenants, virtual networks, virtual machines
+- An OSAC environment is provided — no installation required
 
 ## Learning Objectives
 
-1. [Action verb] [specific, measurable outcome]
-2. [Action verb] [specific, measurable outcome]
-3. [Action verb] [specific, measurable outcome]
+By the end of this lab, participants will be able to:
 
-<!-- Scale to duration: up to 3 objectives per 45 min of content. Start with action verbs: Configure, Deploy, Create, Implement, Troubleshoot, Monitor, Scale. Each should be testable. NOT: Understand, Learn, Know. -->
+- Create and manage OSAC tenants using the admin interface
+- Build and publish VM templates for use within an OSAC tenant
+- Configure virtual networks, subnetworks, and security groups for tenant isolation
+- Provision and manage virtual machines within an OSAC tenant environment
+- Explore OSAC as an end user to request and access VM resources
 
 ## Content Type
 
-[Lab (hands-on) or Demo (presenter-led)]
+Hands-on lab
 
 ## Products & Technologies
 
-- [Official Red Hat product name with version if relevant]
-- [Additional products/technologies]
-
-<!-- Use official names: "Red Hat OpenShift", not "OpenShift". List upstream projects separately. -->
+- **Open Sovereign AI Cloud (OSAC)** — sovereign cloud platform providing multi-tenant VM infrastructure
 
 ## Module Map
 
 | Module | Title | Duration |
 |--------|-------|----------|
-| 1 | [Module title] | [XX min] |
-| 2 | [Module title] | [XX min] |
-| — | **Total hands-on** | **[X hours]** |
-| — | Intro / presentation | [~XX min] |
-| — | **Total lab** | **[~X hours]** |
+| 1 | OSAC Platform Orientation | 10 min |
+| 2 | Tenant Administration | 20 min |
+| 3 | VM Templates | 15 min |
+| 4 | Virtual Networking | 20 min |
+| 5 | Virtual Machine Lifecycle | 20 min |
+| — | Total hands-on | ~85 min |
+| — | Intro / presentation | ~5 min |
+| — | Total lab | ~90 min |
 
-<!-- Each module 10-30 min. Total: lab 1-4 hours, demo 15-45 min. Modules should build on each other. -->
+**Module 1** covers platform orientation — exploring the OSAC UI, understanding the architecture, and confirming the lab environment works. Short and fast (10 min) so participants spend most of their time on hands-on tasks.
+
+**Modules 2–5** follow the natural admin workflow: first create the organizational unit (tenant), then add the resources it can use (templates, networks), then provision actual workloads (VMs). Module 5 also includes the end-user perspective — switching roles to show how a tenant user requests and accesses a VM.
 
 ## Difficulty Level
 
-[Beginner, Intermediate, or Advanced]
+Intermediate
 
 ## Environment
 
-**Learner view:** [What exists when the lab starts — pre-deployed resources, what participants see and interact with. Be specific about cluster details.]
-
-**Automation needed:** [Yes/No]
-
-[If yes, list what automation must provision — operators, per-user resources, sample apps, data sets.]
+Participants access a pre-deployed OSAC environment running on Red Hat OpenShift. The lab provides both an admin account and an end-user account to demonstrate both administrative and consumer perspectives. No cluster setup or OSAC installation is required — the environment is ready when the lab starts.
 
 ## Infrastructure Requirements
 
-- **Cloud provider:** [CNV (default), AWS, or Troshka (bare-metal/nested virt)]
-- **Cluster type:** [Multinode or SNO (Single Node OpenShift)]
-- **OCP version:** [e.g. 4.20 — minimum 4.20]
-- **Topology:** [Shared cluster, per-student, or CNV pool]
-- **Sizing:** [Node types and counts with resources — e.g., "3 control plane (16 CPU, 64GB RAM), 6 workers (8 CPU, 32GB RAM, 100GB disk)"]
-- **Automation approach:** [Ansible, GitOps (Helm + ArgoCD), or combo]
-- **AI/MaaS:** [None, MaaS (open-source model), MaaS (frontier model), or dedicated GPU — include justification if not "none"]
-- **External services:** [Named services — e.g., github.com, registry.access.redhat.com — or "None"]
-- **AAP version:** [e.g. 2.5 — only if AAP is in products; omit otherwise]
-- **Non-GA products:** [Product name + version, with access plan — or "None (all products are GA)"]
+TBD — confirmed in infrastructure phase
 
-<!-- Not all fields must be known at intake. "TBD, estimating ~X" is fine. -->
+- Cloud provider: TBD
+- Cluster type: TBD
+- OCP version: TBD
+- Topology: TBD
+- Sizing: TBD
+- Automation approach: Ansible
+- AI/MaaS: TBD
+- External services: TBD
+- AAP version: TBD
+- Non-GA products: TBD
 
 ## Assessment Strategy (Optional)
 
-<!-- Optional — skip this section for demos or classic labs without verification. -->
-<!-- Relevant for Zero-Touch labs with solve/validate buttons or labs with automated checks. -->
-
-[If applicable: how will we know the learner successfully completed each module? Per module: verification script, solve/validate button, visible result in the UI, or automated check.]
+Observation-based: participants demonstrate successful completion by showing the expected state in the OSAC UI or CLI output. No automated solve/validate scripts are required for this classic showroom lab.
