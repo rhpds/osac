@@ -111,7 +111,28 @@ approval_checklist:
       the full OSAC operational workflow: tenant administration, VM template creation, virtual
       networking (networks, subnetworks, security groups), and VM lifecycle — with both admin
       and end-user perspectives across 5 modules.
-    module_summaries: []
+    module_summaries:
+      - title: "OSAC Platform Orientation"
+        overview: >-
+          Participants navigate the OSAC console, review the platform architecture, and verify
+          that both admin and end-user accounts are accessible before beginning hands-on tasks.
+      - title: "Tenant Administration"
+        overview: >-
+          Participants create an OSAC tenant as an admin, configure quotas and settings, assign
+          users to the tenant, and verify the tenant is ready for resource provisioning.
+      - title: "VM Templates"
+        overview: >-
+          Participants review available base images, build a VM template with compute and image
+          configuration, and publish it to the tenant for use in downstream provisioning.
+      - title: "Virtual Networking"
+        overview: >-
+          Participants create a virtual network, add subnetworks, and define and attach security
+          groups to establish the network topology that VMs will connect to.
+      - title: "Virtual Machine Lifecycle"
+        overview: >-
+          Participants provision a VM using the admin account, perform lifecycle operations (start,
+          stop, console access), then switch to the end-user perspective to explore how a tenant
+          user requests and accesses a virtual machine.
     rcars_overlap_pct: 60
     rcars_top_matches:
       - title: "Operations and Automation with OpenShift Virtualization"
