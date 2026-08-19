@@ -61,18 +61,18 @@ Participants access a pre-deployed OSAC environment running on Red Hat OpenShift
 
 ## Infrastructure Requirements
 
-TBD — confirmed in infrastructure phase
-
-- Cloud provider: TBD
-- Cluster type: TBD
-- OCP version: TBD
-- Topology: TBD
-- Sizing: TBD
-- Automation approach: Ansible
-- AI/MaaS: TBD
-- External services: TBD
-- AAP version: TBD
-- Non-GA products: TBD
+- **Platform:** OCP
+- **Cloud provider:** CNV
+- **Topology:** Per-student (each student gets a dedicated OSAC environment)
+- **Cluster type:** Multinode
+- **OCP version:** 4.22 (minimum)
+- **Control plane:** 3 nodes, 16 vCPU, 32GB RAM each
+- **Workers:** 2 nodes (default; up to 5), 64 vCPU, 128GB RAM, 512GB root disk, 2×2TB extra disks each
+- **Automation:** Ansible (`rhpds.sovereign_cloud.ocp4_workload_osac`)
+- **Provisioning time:** ~55 min total (~25 min cluster + ~30 min OSAC deployment)
+- **AI/MaaS:** TBD
+- **External services:** github.com, quay.io, mirror.openshift.com, rhdp-private.s3.us-east-1.amazonaws.com (AAP license)
+- **Non-GA products:** None
 
 ## Assessment Strategy (Optional)
 
