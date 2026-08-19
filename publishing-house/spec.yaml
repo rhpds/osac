@@ -100,12 +100,35 @@ approval_checklist:
 
   content:
     prerequisites_verifiable: false
-    assessment_strategy: ""
-    catalog_gap: ""
-    design_overview: ""
+    assessment_strategy: "Observation-based — participants demonstrate expected state in OSAC UI or CLI output"
+    catalog_gap: >-
+      OSAC is a new platform with no existing catalog coverage. All near-matches cover OpenShift
+      Virtualization (KubeVirt) operations but none address the OSAC abstraction layer: tenant
+      lifecycle, OSAC-native VM templates, virtual network and security group configuration, or
+      the OSAC end-user portal experience.
+    design_overview: >-
+      A 90-minute intermediate lab for OSAC admins, platform engineers, and ops teams. Covers
+      the full OSAC operational workflow: tenant administration, VM template creation, virtual
+      networking (networks, subnetworks, security groups), and VM lifecycle — with both admin
+      and end-user perspectives across 5 modules.
     module_summaries: []
-    rcars_overlap_pct: null
-    rcars_top_matches: []
+    rcars_overlap_pct: 60
+    rcars_top_matches:
+      - title: "Operations and Automation with OpenShift Virtualization"
+        ci_name: "openshift-cnv.virt-aap-day-2.prod"
+        url: "https://catalog.demo.redhat.com/catalog?item=openshift-cnv.virt-aap-day-2.prod"
+        relevance_score: 60
+        why_it_fits: "VM lifecycle management and network policy config overlap with OSAC admin workflows, but the lab is Ansible/OCP-Virt focused with no OSAC-specific content."
+      - title: "Experience OpenShift Virtualization: Advanced Operations and Automation"
+        ci_name: "openshift-cnv.ocp-virt-advanced-ops.prod"
+        url: "https://catalog.demo.redhat.com/catalog?item=openshift-cnv.ocp-virt-advanced-ops.prod"
+        relevance_score: 55
+        why_it_fits: "RBAC, networking, and VM lifecycle topics partially overlap, but built on KubeVirt not OSAC."
+      - title: "Experience OpenShift Virtualization: Advanced Operations and Automation - Shared RHACM HUB"
+        ci_name: "openshift-cnv.ocp-virt-advanced-ops-hub.prod"
+        url: "https://catalog.demo.redhat.com/catalog?item=openshift-cnv.ocp-virt-advanced-ops-hub.prod"
+        relevance_score: 53
+        why_it_fits: "Same as above with RHACM multi-cluster added — still OCP Virt, not OSAC."
     rejections: []
 
   infra:
