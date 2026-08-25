@@ -1,92 +1,75 @@
-# Publishing House — Project Spec
-# Lifecycle: intake → content_review → infra_review → jira_sync → development → ready → published
-# No secrets in this file. Tokens live in ~/.config/publishing-house/auth.json
-# Stage is managed by SonataFlow and cached in .ph-state — do not edit stage.current manually.
-# NOTE: This file is also in the template repo. The Scaffolder overlays project.* values.
-# TODO: Eliminate this copy — Scaffolder should pull from template repo directly.
-
 project:
-  slug: "osac"
-  owner_email: "wkulhane@redhat.com"
-  content_type: "lab"
-  deployment_mode: "rhdp_published"
-  initiative_key: "rh1_2027"
-  showroom_type: "classic"
-  intake_type: "new"
-  automation_type: "ansible"
-  description: "Open Sovereign AI Cloud (or whatever it will be called) hands-on lab"
-  # content_reviewer_email and infra_reviewer_email are assigned by the RHDP team — not set by the author
-  jira_ticket: "RHDPCD-1059"
-  workflow_id: "85c1cfbd-2bae-4a23-a3a8-10ba2344ea0b"
-
+  slug: osac
+  owner_email: wkulhane@redhat.com
+  content_type: lab
+  deployment_mode: rhdp_published
+  initiative_key: rh1_2027
+  showroom_type: classic
+  intake_type: new
+  automation_type: ansible
+  description: Open Sovereign AI Cloud (or whatever it will be called) hands-on lab
+  jira_ticket: RHDPCD-1059
+  workflow_id: 85c1cfbd-2bae-4a23-a3a8-10ba2344ea0b
 spec:
-  title: "Open Sovereign AI Cloud: Tenant Administration and VM Lifecycle"
+  title: 'Open Sovereign AI Cloud: Tenant Administration and VM Lifecycle'
   learning_objectives:
-  - "Create and manage OSAC tenants using the admin interface"
-  - "Build and publish VM templates for use within an OSAC tenant"
-  - "Configure virtual networks, subnetworks, and security groups for tenant isolation"
-  - "Provision and manage virtual machines within an OSAC tenant environment"
-  - "Explore OSAC as an end user to request and access VM resources"
-  modules:                 # [{id, title, duration_min}] — written by intake Phase 4; id is stable (e.g. module-01)
+  - Create and manage OSAC tenants using the admin interface
+  - Build and publish VM templates for use within an OSAC tenant
+  - Configure virtual networks, subnetworks, and security groups for tenant isolation
+  - Provision and manage virtual machines within an OSAC tenant environment
+  - Explore OSAC as an end user to request and access VM resources
+  modules:
   - id: module-01
-    title: "OSAC Platform Orientation"
+    title: OSAC Platform Orientation
     duration_min: 10
     status: not_started
   - id: module-02
-    title: "Tenant Administration"
+    title: Tenant Administration
     duration_min: 20
     status: not_started
   - id: module-03
-    title: "VM Templates"
+    title: VM Templates
     duration_min: 15
     status: not_started
   - id: module-04
-    title: "Virtual Networking"
+    title: Virtual Networking
     duration_min: 20
     status: not_started
   - id: module-05
-    title: "Virtual Machine Lifecycle"
+    title: Virtual Machine Lifecycle
     duration_min: 20
     status: not_started
   environment:
-    platform: "ocp"            # ocp | rhel-vms — determines which sizing fields apply
-    topology: "per-student"    # shared-cluster | per-student | cnv-pool
-    cloud_provider: cnv        # cnv | aws | troshka — cnv is default
-    max_concurrent_users: null # required if topology = shared-cluster
-
-    # --- OCP-specific fields (only when platform = ocp) ---
-    ocp_version: "4.22"                 # e.g. 4.20 — minimum 4.20; leave empty for rhel-vms
-    cluster_type: "multinode"           # sno | multinode — only for platform = ocp
-    control_plane_instance_count: 3     # 1 if sno, 3 if multinode
-    control_plane_cpu: 16               # 32 if sno, 16 if multinode
-    control_plane_ram_gb: 32            # 128 if sno, 64 if multinode
-    worker_count: 2                     # number of OCP worker nodes (default; max 5)
-    worker_cpu: 64                      # vCPU per worker
-    worker_ram_gb: 128                  # RAM per worker in GB
-    worker_disk_gb: 512                 # disk per worker in GB
-
-    # --- VM-specific fields (only when platform = rhel-vms) ---
-    # Each entry: {role, count, cpu, ram_gb, disk_gb, os}
+    platform: ocp
+    topology: per-student
+    cloud_provider: cnv
+    max_concurrent_users: null
+    ocp_version: '4.22'
+    cluster_type: multinode
+    control_plane_instance_count: 3
+    control_plane_cpu: 16
+    control_plane_ram_gb: 32
+    worker_count: 2
+    worker_cpu: 64
+    worker_ram_gb: 128
+    worker_disk_gb: 512
     vms_per_student: []
-
-    # --- Common fields (both platforms) ---
-    aap_version: ""                    # required if AAP in products
-    ai_requirement: "none"             # maas | gpu | none — set to none for now; may change if lab includes AI workloads
-    ai_model_tier: ""                  # open-source | frontier (if ai_requirement = maas or gpu)
-    ai_model_name: ""                  # specific model e.g. granite-3.1-8b
-    ai_justification: ""               # required if ai_model_tier = frontier or ai_requirement = gpu
-    non_ga_products: []                # list of non-GA products/versions
-    non_ga_access_plan: ""             # how access is provided for non-GA products
+    aap_version: ''
+    ai_requirement: none
+    ai_model_tier: ''
+    ai_model_name: ''
+    ai_justification: ''
+    non_ga_products: []
+    non_ga_access_plan: ''
     external_services:
-    - github.com                       # OSAC installer source code
-    - quay.io                          # container images
-    - mirror.openshift.com             # OCP installer
-    - rhdp-private.s3.us-east-1.amazonaws.com  # AAP license
-    gpu_nodes: 0                       # number of GPU nodes (0 = none)
-    gpu_type: ""                       # e.g. NVIDIA A100 40GB (required if gpu_nodes > 0)
+    - github.com
+    - quay.io
+    - mirror.openshift.com
+    - rhdp-private.s3.us-east-1.amazonaws.com
+    gpu_nodes: 0
+    gpu_type: ''
   duration_hours: 1.5
-  audience: "intermediate"               # beginner | intermediate | advanced
-
+  audience: intermediate
 development:
   automation:
     ansible:
@@ -95,76 +78,88 @@ development:
     status: not_started
   healthCheck:
     status: not_started
-
 compliance:
   last_hard_check: null
   hard_result: null
-
 tracking:
   paused: false
   pause_reason: null
-
-# Approval checklist — filled collaboratively by author + skill + system + reviewers
 approval_checklist:
-
   content:
     prerequisites_verifiable: false
-    assessment_strategy: "Observation-based — participants demonstrate expected state in OSAC UI or CLI output"
-    catalog_gap: >-
-      OSAC is a new platform with no existing catalog coverage. All near-matches cover OpenShift
-      Virtualization (KubeVirt) operations but none address the OSAC abstraction layer: tenant
-      lifecycle, OSAC-native VM templates, virtual network and security group configuration, or
-      the OSAC end-user portal experience.
-    design_overview: >-
-      A 90-minute intermediate lab for OSAC admins, platform engineers, and ops teams. Covers
-      the full OSAC operational workflow: tenant administration, VM template creation, virtual
-      networking (networks, subnetworks, security groups), and VM lifecycle — with both admin
-      and end-user perspectives across 5 modules.
+    assessment_strategy: "Observation-based \u2014 participants demonstrate expected\
+      \ state in OSAC UI or CLI output"
+    catalog_gap: 'OSAC is a new platform with no existing catalog coverage. All near-matches
+      cover OpenShift Virtualization (KubeVirt) operations but none address the OSAC
+      abstraction layer: tenant lifecycle, OSAC-native VM templates, virtual network
+      and security group configuration, or the OSAC end-user portal experience.'
+    design_overview: "A 90-minute intermediate lab for OSAC admins, platform engineers,\
+      \ and ops teams. Covers the full OSAC operational workflow: tenant administration,\
+      \ VM template creation, virtual networking (networks, subnetworks, security\
+      \ groups), and VM lifecycle \u2014 with both admin and end-user perspectives\
+      \ across 5 modules."
     module_summaries:
-      - title: "OSAC Platform Orientation"
-        overview: >-
-          Participants navigate the OSAC console, review the platform architecture, and verify
-          that both admin and end-user accounts are accessible before beginning hands-on tasks.
-      - title: "Tenant Administration"
-        overview: >-
-          Participants create an OSAC tenant as an admin, configure quotas and settings, assign
-          users to the tenant, and verify the tenant is ready for resource provisioning.
-      - title: "VM Templates"
-        overview: >-
-          Participants review available base images, build a VM template with compute and image
-          configuration, and publish it to the tenant for use in downstream provisioning.
-      - title: "Virtual Networking"
-        overview: >-
-          Participants create a virtual network, add subnetworks, and define and attach security
-          groups to establish the network topology that VMs will connect to.
-      - title: "Virtual Machine Lifecycle"
-        overview: >-
-          Participants provision a VM using the admin account, perform lifecycle operations (start,
-          stop, console access), then switch to the end-user perspective to explore how a tenant
-          user requests and accesses a virtual machine.
+    - title: OSAC Platform Orientation
+      overview: Participants navigate the OSAC console, review the platform architecture,
+        and verify that both admin and end-user accounts are accessible before beginning
+        hands-on tasks.
+    - title: Tenant Administration
+      overview: Participants create an OSAC tenant as an admin, configure quotas and
+        settings, assign users to the tenant, and verify the tenant is ready for resource
+        provisioning.
+    - title: VM Templates
+      overview: Participants review available base images, build a VM template with
+        compute and image configuration, and publish it to the tenant for use in downstream
+        provisioning.
+    - title: Virtual Networking
+      overview: Participants create a virtual network, add subnetworks, and define
+        and attach security groups to establish the network topology that VMs will
+        connect to.
+    - title: Virtual Machine Lifecycle
+      overview: Participants provision a VM using the admin account, perform lifecycle
+        operations (start, stop, console access), then switch to the end-user perspective
+        to explore how a tenant user requests and accesses a virtual machine.
     rcars_overlap_pct: 60
     rcars_top_matches:
-      - title: "Operations and Automation with OpenShift Virtualization"
-        ci_name: "openshift-cnv.virt-aap-day-2.prod"
-        url: "https://catalog.demo.redhat.com/catalog?item=openshift-cnv.virt-aap-day-2.prod"
-        relevance_score: 60
-        why_it_fits: "VM lifecycle management and network policy config overlap with OSAC admin workflows, but the lab is Ansible/OCP-Virt focused with no OSAC-specific content."
-      - title: "Experience OpenShift Virtualization: Advanced Operations and Automation"
-        ci_name: "openshift-cnv.ocp-virt-advanced-ops.prod"
-        url: "https://catalog.demo.redhat.com/catalog?item=openshift-cnv.ocp-virt-advanced-ops.prod"
-        relevance_score: 55
-        why_it_fits: "RBAC, networking, and VM lifecycle topics partially overlap, but built on KubeVirt not OSAC."
-      - title: "Experience OpenShift Virtualization: Advanced Operations and Automation - Shared RHACM HUB"
-        ci_name: "openshift-cnv.ocp-virt-advanced-ops-hub.prod"
-        url: "https://catalog.demo.redhat.com/catalog?item=openshift-cnv.ocp-virt-advanced-ops-hub.prod"
-        relevance_score: 53
-        why_it_fits: "Same as above with RHACM multi-cluster added — still OCP Virt, not OSAC."
-    rejections: []
-
+    - title: Operations and Automation with OpenShift Virtualization
+      ci_name: openshift-cnv.virt-aap-day-2.prod
+      url: https://catalog.demo.redhat.com/catalog?item=openshift-cnv.virt-aap-day-2.prod
+      relevance_score: 60
+      why_it_fits: VM lifecycle management and network policy config overlap with
+        OSAC admin workflows, but the lab is Ansible/OCP-Virt focused with no OSAC-specific
+        content.
+    - title: 'Experience OpenShift Virtualization: Advanced Operations and Automation'
+      ci_name: openshift-cnv.ocp-virt-advanced-ops.prod
+      url: https://catalog.demo.redhat.com/catalog?item=openshift-cnv.ocp-virt-advanced-ops.prod
+      relevance_score: 55
+      why_it_fits: RBAC, networking, and VM lifecycle topics partially overlap, but
+        built on KubeVirt not OSAC.
+    - title: 'Experience OpenShift Virtualization: Advanced Operations and Automation
+        - Shared RHACM HUB'
+      ci_name: openshift-cnv.ocp-virt-advanced-ops-hub.prod
+      url: https://catalog.demo.redhat.com/catalog?item=openshift-cnv.ocp-virt-advanced-ops-hub.prod
+      relevance_score: 53
+      why_it_fits: "Same as above with RHACM multi-cluster added \u2014 still OCP\
+        \ Virt, not OSAC."
+    rejections:
+    - id: d8fed223-ca79-4364-9ddc-533ec36e900c
+      text: RH1 labs are 2 hours, this is only 90 minutes
+      resolved: false
+      reviewer: nstephan@redhat.com
+      timestamp: '2026-08-20T12:22:37.104819+00:00'
+    - id: 71416ee3-caa3-42f0-8e36-87ed74f4e777
+      text: 'Your description says "Participants take on the role of an OSAC administrator
+        to set up and operate the platform". But then you provide them with a fully
+        configured environement and your modules are a little on the dry side: create
+        a tenant, create a network, creatae a vm. If there is no focus on operating
+        the "OSAC Platform", this sounds like VM management 101 with a different UI.'
+      resolved: false
+      reviewer: nstephan@redhat.com
+      timestamp: '2026-08-20T12:22:37.104819+00:00'
   infra:
     peak_environments: null
-    cost_per_run_est: ""
-    provisioning_time_est: ""
-    agnosticv_base_ci: ""
-    approved_by: ""
+    cost_per_run_est: ''
+    provisioning_time_est: ''
+    agnosticv_base_ci: ''
+    approved_by: ''
     rejections: []
