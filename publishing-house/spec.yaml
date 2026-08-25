@@ -7,37 +7,37 @@ project:
   showroom_type: classic
   intake_type: new
   automation_type: ansible
-  description: Open Sovereign AI Cloud (or whatever it will be called) hands-on lab
+  description: OpenShift Cloud Extensions hands-on lab
   jira_ticket: RHDPCD-1059
   workflow_id: 85c1cfbd-2bae-4a23-a3a8-10ba2344ea0b
 spec:
-  title: 'Open Sovereign AI Cloud: Tenant Administration and VM Lifecycle'
+  title: 'OpenShift Cloud Extensions: Tenant Administration and VM Lifecycle'
   learning_objectives:
-  - Create and manage OSAC tenants using the admin interface
-  - Build and publish VM templates for use within an OSAC tenant
+  - Create and manage OCX tenants using the admin interface
+  - Build and publish VM templates for use within an OCX tenant
   - Configure virtual networks, subnetworks, and security groups for tenant isolation
-  - Provision and manage virtual machines within an OSAC tenant environment
-  - Explore OSAC as an end user to request and access VM resources
+  - Provision and manage virtual machines within an OCX tenant environment
+  - Explore OCX as an end user to request and access VM resources
   modules:
   - id: module-01
-    title: OSAC Platform Orientation
-    duration_min: 10
+    title: OCX Platform Orientation
+    duration_min: 15
     status: not_started
   - id: module-02
     title: Tenant Administration
-    duration_min: 20
+    duration_min: 25
     status: not_started
   - id: module-03
     title: VM Templates
-    duration_min: 15
+    duration_min: 20
     status: not_started
   - id: module-04
     title: Virtual Networking
-    duration_min: 20
+    duration_min: 25
     status: not_started
   - id: module-05
     title: Virtual Machine Lifecycle
-    duration_min: 20
+    duration_min: 30
     status: not_started
   environment:
     platform: ocp
@@ -68,7 +68,7 @@ spec:
     - rhdp-private.s3.us-east-1.amazonaws.com
     gpu_nodes: 0
     gpu_type: ''
-  duration_hours: 1.5
+  duration_hours: 2.0
   audience: intermediate
 development:
   automation:
@@ -89,22 +89,23 @@ approval_checklist:
     prerequisites_verifiable: false
     assessment_strategy: "Observation-based \u2014 participants demonstrate expected\
       \ state in OSAC UI or CLI output"
-    catalog_gap: 'OSAC is a new platform with no existing catalog coverage. All near-matches
-      cover OpenShift Virtualization (KubeVirt) operations but none address the OSAC
-      abstraction layer: tenant lifecycle, OSAC-native VM templates, virtual network
-      and security group configuration, or the OSAC end-user portal experience.'
-    design_overview: "A 90-minute intermediate lab for OSAC admins, platform engineers,\
-      \ and ops teams. Covers the full OSAC operational workflow: tenant administration,\
+    catalog_gap: 'OpenShift Cloud Extensions (OCX) is a new platform with no existing
+      catalog coverage. All near-matches cover OpenShift Virtualization (KubeVirt)
+      operations but none address the OCX abstraction layer: tenant lifecycle, OCX-native
+      VM templates, virtual network and security group configuration, or the OCX
+      end-user portal experience.'
+    design_overview: "A 2-hour intermediate lab for OCX admins, platform engineers,\
+      \ and ops teams. Covers the full OCX operational workflow: tenant administration,\
       \ VM template creation, virtual networking (networks, subnetworks, security\
       \ groups), and VM lifecycle \u2014 with both admin and end-user perspectives\
       \ across 5 modules."
     module_summaries:
-    - title: OSAC Platform Orientation
-      overview: Participants navigate the OSAC console, review the platform architecture,
+    - title: OCX Platform Orientation
+      overview: Participants navigate the OCX console, review the platform architecture,
         and verify that both admin and end-user accounts are accessible before beginning
         hands-on tasks.
     - title: Tenant Administration
-      overview: Participants create an OSAC tenant as an admin, configure quotas and
+      overview: Participants create an OCX tenant as an admin, configure quotas and
         settings, assign users to the tenant, and verify the tenant is ready for resource
         provisioning.
     - title: VM Templates
@@ -126,21 +127,21 @@ approval_checklist:
       url: https://catalog.demo.redhat.com/catalog?item=openshift-cnv.virt-aap-day-2.prod
       relevance_score: 60
       why_it_fits: VM lifecycle management and network policy config overlap with
-        OSAC admin workflows, but the lab is Ansible/OCP-Virt focused with no OSAC-specific
+        OCX admin workflows, but the lab is Ansible/OCP-Virt focused with no OCX-specific
         content.
     - title: 'Experience OpenShift Virtualization: Advanced Operations and Automation'
       ci_name: openshift-cnv.ocp-virt-advanced-ops.prod
       url: https://catalog.demo.redhat.com/catalog?item=openshift-cnv.ocp-virt-advanced-ops.prod
       relevance_score: 55
       why_it_fits: RBAC, networking, and VM lifecycle topics partially overlap, but
-        built on KubeVirt not OSAC.
+        built on KubeVirt not OCX.
     - title: 'Experience OpenShift Virtualization: Advanced Operations and Automation
         - Shared RHACM HUB'
       ci_name: openshift-cnv.ocp-virt-advanced-ops-hub.prod
       url: https://catalog.demo.redhat.com/catalog?item=openshift-cnv.ocp-virt-advanced-ops-hub.prod
       relevance_score: 53
       why_it_fits: "Same as above with RHACM multi-cluster added \u2014 still OCP\
-        \ Virt, not OSAC."
+        \ Virt, not OCX."
     rejections:
     - id: d8fed223-ca79-4364-9ddc-533ec36e900c
       text: RH1 labs are 2 hours, this is only 90 minutes

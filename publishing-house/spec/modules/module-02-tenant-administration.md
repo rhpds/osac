@@ -2,19 +2,19 @@
 
 ### Brief Overview
 
-Tenants are the primary organizational unit of OSAC. This module walks participants through creating and configuring a tenant using the OSAC admin interface. Participants define resource quotas, configure access policies, and assign users — giving them the foundation that all subsequent modules (templates, networks, VMs) are built upon.
+Tenants are the primary organizational unit of OCX. This module walks participants through creating and configuring a tenant using the OCX admin interface. Participants define resource quotas, configure access policies, and assign users — giving them the foundation that all subsequent modules (templates, networks, VMs) are built upon.
 
 ### Audience and Time
 
-**Audience**: OSAC administrators and platform engineers responsible for setting up and operating multi-tenant environments.
+**Audience**: OCX administrators and platform engineers responsible for setting up and operating multi-tenant environments.
 
 **Prerequisites for this module**: Module 01 complete; admin console accessible.
 
-**Duration**: 20 min
+**Duration**: 25 min
 
 ### Learning Objectives
 
-- Create a new OSAC tenant using the administrative interface
+- Create a new OCX tenant using the administrative interface
 - Configure tenant properties including resource quotas
 - Manage tenant user assignments and role bindings to separate admin and user responsibilities
 - Verify that a newly created tenant is correctly reflected in the platform
@@ -23,9 +23,9 @@ Tenants are the primary organizational unit of OSAC. This module walks participa
 
 | Section | Title | Duration |
 |---------|-------|----------|
-| 1 | Create a new tenant | 8 min |
-| 2 | Configure tenant quotas and settings | 7 min |
-| 3 | Assign users and verify tenant state | 5 min |
+| 1 | Create a new tenant | 10 min |
+| 2 | Configure tenant quotas and settings | 9 min |
+| 3 | Assign users and verify tenant state | 6 min |
 
 ### Detailed Steps
 
@@ -37,7 +37,7 @@ Tenants are the primary organizational unit of OSAC. This module walks participa
 
 ### Key Takeaways
 
-- Tenants are the central organizational boundary in OSAC, scoping all resources (templates, networks, VMs) to an isolated unit.
+- Tenants are the central organizational boundary in OCX, scoping all resources (templates, networks, VMs) to an isolated unit.
 - Resource quotas are defined at tenant creation and control the ceiling for all workloads within that tenant.
 - Role-based access control separates administrative operations from end-user consumption.
 - A correctly configured tenant is a prerequisite for publishing templates, creating networks, and provisioning VMs.

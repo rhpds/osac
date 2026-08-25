@@ -6,26 +6,26 @@ This capstone module brings together all prior work: participants provision a vi
 
 ### Audience and Time
 
-**Audience**: OSAC administrators and platform engineers; end-user perspective demonstrated for participants taking on both roles.
+**Audience**: OCX administrators and platform engineers; end-user perspective demonstrated for participants taking on both roles.
 
 **Prerequisites for this module**: Modules 01–04 complete; a tenant, published template, and virtual network are all in place.
 
-**Duration**: 20 min
+**Duration**: 30 min
 
 ### Learning Objectives
 
-- Provision a virtual machine within an OSAC tenant using a published template and virtual network
+- Provision a virtual machine within an OCX tenant using a published template and virtual network
 - Manage VM lifecycle operations including start, stop, and restart from the admin console
 - Demonstrate the end-user perspective by requesting and accessing a VM as a tenant user
-- Analyze the full OSAC operational workflow from tenant creation through VM access
+- Analyze the full OCX operational workflow from tenant creation through VM access
 
 ### Lab Structure
 
 | Section | Title | Duration |
 |---------|-------|----------|
-| 1 | Provision a VM as admin | 8 min |
-| 2 | Manage VM lifecycle operations | 6 min |
-| 3 | Switch to end-user perspective | 6 min |
+| 1 | Provision a VM as admin | 10 min |
+| 2 | Manage VM lifecycle operations | 8 min |
+| 3 | Switch to end-user perspective | 12 min |
 
 ### Detailed Steps
 
@@ -38,13 +38,13 @@ This capstone module brings together all prior work: participants provision a vi
 
 ### Key Takeaways
 
-- VM provisioning in OSAC integrates templates, networks, and tenant context into a single, repeatable workflow.
+- VM provisioning in OCX integrates templates, networks, and tenant context into a single, repeatable workflow.
 - The platform manages the complete VM lifecycle — creation, start, stop, restart, and deletion — through a unified interface.
 - End users interact with a simplified self-service interface, consuming admin-configured resources without exposure to platform internals.
-- Understanding both the admin and end-user perspectives is essential to operating OSAC effectively in a production environment.
+- Understanding both the admin and end-user perspectives is essential to operating OCX effectively in a production environment.
 
 ### Infrastructure Notes
 
 - VM provisioning time depends on the base image size; the lab environment is tuned to minimize wait time.
 - The end-user account must be assigned to the tenant (completed in Module 2) for the end-user perspective section to work.
-- Assessment is observation-based: participants demonstrate the expected state in the OSAC UI or via CLI output.
+- Assessment is observation-based: participants demonstrate the expected state in the OCX UI or via CLI output.
