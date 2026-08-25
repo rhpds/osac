@@ -40,16 +40,16 @@ Hands-on lab
 |--------|-------|----------|
 | 1 | OCX Platform Orientation | 15 min |
 | 2 | Tenant Administration | 25 min |
-| 3 | VM Templates | 20 min |
+| 3 | OCX Compute Catalog | 20 min |
 | 4 | Virtual Networking | 25 min |
 | 5 | Virtual Machine Lifecycle | 30 min |
 | — | Total hands-on | ~115 min |
 | — | Intro / presentation | ~5 min |
 | — | Total lab | ~120 min |
 
-**Module 1** covers platform orientation — exploring the OCX UI, understanding the architecture, and confirming the lab environment works. Short and fast (15 min) so participants spend most of their time on hands-on tasks.
+**Module 1** covers platform orientation — exploring the OCX UI, understanding the NetworkClass model (CUDN, MetalLB, etc.), and confirming the lab environment works. Short and fast (15 min) so participants spend most of their time on hands-on tasks.
 
-**Modules 2–5** follow the natural admin workflow: first create the organizational unit (tenant), then add the resources it can use (templates, networks), then provision actual workloads (VMs). Module 5 also includes the end-user perspective — switching roles to show how a tenant user requests and accesses a VM.
+**Modules 2–5** follow the natural admin workflow: create the tenant (with both API and Kubernetes layers), publish the VM catalog (InstanceTypes + Catalog Items), configure isolated tenant networking (VirtualNetwork → Subnet/CUDN → SecurityGroup/NetworkPolicy), and provision and operate a VM through its full lifecycle including console access, public IP attachment, and teardown.
 
 ## Difficulty Level
 

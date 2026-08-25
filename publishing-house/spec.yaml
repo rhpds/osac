@@ -28,7 +28,7 @@ spec:
     duration_min: 25
     status: not_started
   - id: module-03
-    title: VM Templates
+    title: OCX Compute Catalog
     duration_min: 20
     status: not_started
   - id: module-04
@@ -101,25 +101,30 @@ approval_checklist:
       \ across 5 modules."
     module_summaries:
     - title: OCX Platform Orientation
-      overview: Participants navigate the OCX console, review the platform architecture,
-        and verify that both admin and end-user accounts are accessible before beginning
-        hands-on tasks.
+      overview: Participants explore the OCX admin console, review the NetworkClass
+        model (CUDN vs MetalLB backends), run `osac get networkclass` to inspect
+        available implementations, and verify that both admin and tenant accounts
+        are accessible before beginning hands-on tasks.
     - title: Tenant Administration
-      overview: Participants create an OCX tenant as an admin, configure quotas and
-        settings, assign users to the tenant, and verify the tenant is ready for resource
-        provisioning.
-    - title: VM Templates
-      overview: Participants review available base images, build a VM template with
-        compute and image configuration, and publish it to the tenant for use in downstream
-        provisioning.
+      overview: Participants create an OCX tenant using the two-layer model (fulfillment
+        tenant via `osac create -f` plus a Hub Tenant CR via `oc apply`), configure
+        resource quotas, verify that the Hub Tenant CR resolves storage classes, and
+        assign user accounts with role bindings.
+    - title: OCX Compute Catalog
+      overview: Participants create an InstanceType (a named VM size bundle) and
+        publish a ComputeInstanceCatalogItem with field_definitions that control what
+        tenants can customize when ordering a VM, then verify both appear in the
+        tenant VM creation wizard.
     - title: Virtual Networking
-      overview: Participants create a virtual network, add subnetworks, and define
-        and attach security groups to establish the network topology that VMs will
-        connect to.
+      overview: Participants create a VirtualNetwork (tenant address space), a Subnet
+        that triggers OVN ClusterUserDefinedNetwork provisioning via AAP, and a
+        SecurityGroup whose rules become Kubernetes NetworkPolicies in the subnet
+        namespace — verifying the cluster-level evidence of each step.
     - title: Virtual Machine Lifecycle
-      overview: Participants provision a VM using the admin account, perform lifecycle
-        operations (start, stop, console access), then switch to the end-user perspective
-        to explore how a tenant user requests and accesses a virtual machine.
+      overview: Participants order a VM from the OCX catalog, access it via the
+        serial console, allocate and attach a public IP from a provider-defined pool,
+        perform stop/start/restart lifecycle operations, and clean up all tenant
+        resources in the correct teardown order.
     rcars_overlap_pct: 60
     rcars_top_matches:
     - title: Operations and Automation with OpenShift Virtualization

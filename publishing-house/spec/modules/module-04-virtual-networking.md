@@ -2,7 +2,7 @@
 
 ### Brief Overview
 
-OCX enforces tenant isolation through virtual networking. This module covers creating a virtual network scoped to the lab tenant, partitioning it with subnetworks, and applying security group policies that control traffic to and from virtual machines. The network infrastructure built here is attached to VMs in Module 5.
+OCX enforces tenant isolation through virtual networking backed by OVN Kubernetes. This module covers the three-tier networking model: a **VirtualNetwork** (the tenant's address space), a **Subnet** (a workload-ready slice that triggers actual CUDN provisioning), and a **SecurityGroup** (a virtual firewall that becomes a Kubernetes NetworkPolicy in the subnet namespace). After this module, the tenant has an isolated network environment ready for VMs.
 
 ### Audience and Time
 
@@ -14,35 +14,67 @@ OCX enforces tenant isolation through virtual networking. This module covers cre
 
 ### Learning Objectives
 
-- Create a virtual network scoped to an OCX tenant
-- Configure subnetworks with defined IP address ranges for workload segmentation
-- Implement security group policies to control inbound and outbound traffic between VMs
-- Verify network isolation between tenants within the OCX platform
+- Create a VirtualNetwork that defines the tenant's private address space using the CUDN NetworkClass
+- Create a Subnet that provisions a real OVN ClusterUserDefinedNetwork (CUDN) overlay for workload connectivity
+- Create a SecurityGroup that implements tenant firewall rules as Kubernetes NetworkPolicies in the subnet namespace
+- Verify the cluster-level evidence of CUDN provisioning and NetworkPolicy enforcement
 
 ### Lab Structure
 
 | Section | Title | Duration |
 |---------|-------|----------|
-| 1 | Create a virtual network | 8 min |
-| 2 | Add and configure subnetworks | 9 min |
-| 3 | Define and attach security group policies | 8 min |
+| 1 | Create a VirtualNetwork | 8 min |
+| 2 | Create a Subnet (triggers CUDN provisioning) | 9 min |
+| 3 | Create a SecurityGroup and verify NetworkPolicy | 8 min |
 
 ### Detailed Steps
 
-1. Navigate to the Virtual Networks section of the OCX admin console and create a new virtual network scoped to the lab tenant.
-2. Define a subnetwork within the virtual network, specifying a CIDR range and any gateway or DNS settings.
-3. Create a security group and configure inbound and outbound rules appropriate for the lab workload (e.g., allow SSH, restrict inter-tenant traffic).
-4. Attach the security group to the virtual network or subnetwork.
-5. Verify the network configuration is complete and review how the platform enforces isolation from other tenants.
+1. Log in as tenant admin and create a VirtualNetwork using the CLI:
+   ```bash
+   NC_ID=$(osac get networkclass | awk '/cudn_net/ {print $1; exit}')
+   osac create virtualnetwork --name demo-vnet --network-class "${NC_ID}" --ipv4-cidr "10.100.0.0/16"
+   osac get virtualnetwork demo-vnet   # wait for STATE = READY
+   ```
+2. Note that the VirtualNetwork is a **logical grouping** — no OVN resources are provisioned yet. The CUDN is built at Subnet creation.
+3. Save the VirtualNetwork ID: `export VNET_ID=$(osac get virtualnetworks | awk '/demo-vnet/ {print $1}')`.
+4. Create a Subnet inside the VirtualNetwork:
+   ```bash
+   osac create subnet --name demo-subnet --virtual-network "${VNET_ID}" --ipv4-cidr "10.100.1.0/24"
+   # poll: watch -n5 'osac get subnets | grep demo-subnet'  — wait for STATE = READY (~1–3 min)
+   ```
+5. Once READY, verify the cluster-level resources created by OCX/AAP:
+   ```bash
+   oc get ns -l 'osac.openshift.io/subnet-id'         # a namespace like subnet-xxxxx was created
+   oc get clusteruserdefinednetwork subnet-xxxxx        # the OVN CUDN with your /24 CIDR
+   ```
+   This proves the Subnet is not just a database entry — it is a real OVN overlay network.
+6. Save the Subnet ID: `export SUBNET_ID=$(osac get subnets | awk '/demo-subnet/ {print $1}')`.
+7. Create a SecurityGroup with lab-appropriate rules:
+   ```bash
+   osac create securitygroup --name demo-sg \
+     --virtual-network "${VNET_ID}" \
+     --ingress protocol=tcp,port-from=22,port-to=22,ipv4-cidr=10.100.0.0/16 \
+     --ingress protocol=icmp,ipv4-cidr=10.100.0.0/16 \
+     --egress protocol=all,ipv4-cidr=0.0.0.0/0
+   # wait for STATE = READY
+   ```
+8. Verify the SecurityGroup became a Kubernetes NetworkPolicy in the subnet namespace:
+   ```bash
+   oc get networkpolicy -n subnet-xxxxx   # NetworkPolicy named sg-securitygroup-yyyyy
+   ```
+9. Save the SecurityGroup ID: `export SG_ID=$(osac get securitygroup | awk '/demo-sg/ {print $1}')`.
 
 ### Key Takeaways
 
-- Virtual networks in OCX provide isolated Layer 2 connectivity scoped to a single tenant.
-- Subnetworks partition the tenant's address space and can reflect functional or organizational separation of workloads.
-- Security groups provide stateful firewall enforcement, controlling which traffic is permitted to reach tenant VMs.
-- Network resources are tenant-scoped by design — cross-tenant communication is not permitted without explicit policy, ensuring sovereign isolation.
+- OCX networking has three tiers: VirtualNetwork (address-space definition) → Subnet (CUDN provisioning trigger) → SecurityGroup (firewall/NetworkPolicy).
+- Creating a **Subnet** is where real OVN resources are built: OCX provisions a Kubernetes namespace and a `ClusterUserDefinedNetwork` — tenant VMs will run inside this namespace.
+- The Subnet's friendly name (`demo-subnet`) is separate from the Kubernetes namespace name (`subnet-xxxxx`), which is generated by the operator.
+- A **SecurityGroup** translates OCX ingress/egress rules into Kubernetes **NetworkPolicies** in the subnet namespace — OCX enforces isolation using standard Kubernetes primitives under the hood.
+- Security groups are scoped to a VirtualNetwork; all egress rules require an explicit `ipv4_cidr` even for `PROTOCOL_ALL`.
 
 ### Infrastructure Notes
 
-- Network CIDR ranges used in the lab should be non-overlapping with the underlying OpenShift cluster network.
-- The virtual network and subnetwork created here are selected when provisioning the VM in Module 5.
+- Subnet CIDR must be a subset of the parent VirtualNetwork CIDR (`10.100.1.0/24` inside `10.100.0.0/16`).
+- Network CIDR ranges should not overlap the underlying OpenShift cluster network.
+- The VirtualNetwork, Subnet, and SecurityGroup IDs saved in this module are used in Module 5 when provisioning the VM.
+- AAP runs the CUDN provisioning job in the background — allow 1–3 minutes for Subnet STATE to reach READY.
