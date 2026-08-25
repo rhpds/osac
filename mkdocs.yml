@@ -1,4 +1,4 @@
-site_name: 'Open Sovereign AI Cloud: Tenant Administration and VM Lifecycle'
+site_name: 'OpenShift Cloud Extensions: Tenant Administration and VM Lifecycle'
 docs_dir: publishing-house/spec
 nav:
 - Home: index.md

@@ -1,4 +1,4 @@
-# Open Sovereign AI Cloud: Tenant Administration and VM Lifecycle
+# OpenShift Cloud Extensions: Tenant Administration and VM Lifecycle
 
 Welcome to the project spec. Use the navigation to browse the design and module outlines.
 
