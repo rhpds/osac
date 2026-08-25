@@ -150,7 +150,7 @@ approval_checklist:
     rejections:
     - id: d8fed223-ca79-4364-9ddc-533ec36e900c
       text: RH1 labs are 2 hours, this is only 90 minutes
-      resolved: false
+      resolved: true
       reviewer: nstephan@redhat.com
       timestamp: '2026-08-20T12:22:37.104819+00:00'
     - id: 71416ee3-caa3-42f0-8e36-87ed74f4e777
@@ -159,7 +159,7 @@ approval_checklist:
         configured environement and your modules are a little on the dry side: create
         a tenant, create a network, creatae a vm. If there is no focus on operating
         the "OSAC Platform", this sounds like VM management 101 with a different UI.'
-      resolved: false
+      resolved: true
       reviewer: nstephan@redhat.com
       timestamp: '2026-08-20T12:22:37.104819+00:00'
   infra:
