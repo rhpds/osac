@@ -1,0 +1,525 @@
+---
+# E2E — End-to-end test
+# Runs the full OSAC lab flow (Modules 01–05) via the osac CLI on the bastion.
+# Creates and tears down all resources. Safe to run repeatedly.
+#
+# Required env vars: BASTION_HOST, BASTION_PORT, BASTION_USER, BASTION_PASSWORD
+# Required extravars: fulfillment_public, admin_password, tenant_password
+#
+# Exit 0 = all modules passed, non-zero = failure.
+
+- name: Build inventory
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Add bastion host
+      ansible.builtin.add_host:
+        name: "{{ lookup('ansible.builtin.env', 'BASTION_HOST') }}"
+        ansible_ssh_host: "{{ lookup('ansible.builtin.env', 'BASTION_HOST') }}"
+        ansible_ssh_port: "{{ lookup('ansible.builtin.env', 'BASTION_PORT') | default('22', true) }}"
+        ansible_ssh_user: "{{ lookup('ansible.builtin.env', 'BASTION_USER') }}"
+        ansible_ssh_pass: "{{ lookup('ansible.builtin.env', 'BASTION_PASSWORD') }}"
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+        groups: bastion
+
+- name: End-to-End Test
+  hosts: bastion
+  gather_facts: false
+  become: false
+  vars:
+    osac_namespace: osac
+    tenant_name: e2e-tenant
+    vnet_name: e2e-vnet
+    vnet_cidr: "10.200.0.0/16"
+    subnet_name: e2e-subnet
+    subnet_cidr: "10.200.1.0/24"
+    sg_name: e2e-sg
+    vm_name: e2e-vm
+    instance_type_name: e2e-small-1-2
+    catalog_item_name: e2e-linux-vm
+    public_ip_name: e2e-vm-public-ip
+    public_ip_pool: demo-public-pool
+    poll_retries: 36
+    poll_delay: 10
+
+  tasks:
+    - name: Run E2E test suite
+      block:
+
+        # ── Module 01 — OCX Platform Orientation ──────────────────────
+
+        - name: "M01: Log in as admin"
+          ansible.builtin.command:
+            cmd: >-
+              osac login --insecure
+              --address "{{ fulfillment_public }}"
+              --flow password
+              --user admin
+              --password "{{ admin_password }}"
+          changed_when: false
+          no_log: true
+
+        - name: "M01: Verify NetworkClass cudn_net exists"
+          ansible.builtin.shell:
+            cmd: osac get networkclass | grep cudn_net
+          register: r_networkclass
+          changed_when: false
+          failed_when: "'cudn_net' not in r_networkclass.stdout"
+
+        # ── Module 02 — Tenant Administration ─────────────────────────
+
+        - name: "M02: Write fulfillment tenant manifest"
+          ansible.builtin.copy:
+            dest: /tmp/e2e-tenant.yaml
+            mode: "0644"
+            content: |
+              {
+                "@type": "type.googleapis.com/osac.private.v1.Tenant",
+                "name": "{{ tenant_name }}",
+                "display_name": "E2E Test Tenant"
+              }
+
+        - name: "M02: Create fulfillment tenant"
+          ansible.builtin.command:
+            cmd: osac create -f /tmp/e2e-tenant.yaml
+          register: r_create_tenant
+          changed_when: true
+
+        - name: "M02: Verify tenant is SYNCED"
+          ansible.builtin.shell:
+            cmd: osac get tenants | grep '{{ tenant_name }}'
+          register: r_tenant_status
+          changed_when: false
+          retries: "{{ poll_retries }}"
+          delay: "{{ poll_delay }}"
+          until: "'SYNCED' in r_tenant_status.stdout"
+
+        - name: "M02: Get tenant ID"
+          ansible.builtin.shell:
+            cmd: osac get tenants | awk '/{{ tenant_name }}/ {print $1; exit}'
+          register: r_tenant_id
+          changed_when: false
+
+        - name: "M02: Write Hub Tenant CR"
+          ansible.builtin.copy:
+            dest: /tmp/e2e-hub-tenant.yaml
+            mode: "0644"
+            content: |
+              apiVersion: osac.openshift.io/v1alpha1
+              kind: Tenant
+              metadata:
+                name: "{{ tenant_name }}"
+                namespace: "{{ osac_namespace }}"
+              spec:
+                fulfillmentTenantRef:
+                  id: "{{ r_tenant_id.stdout | trim }}"
+
+        - name: "M02: Apply Hub Tenant CR"
+          ansible.builtin.command:
+            cmd: oc apply -f /tmp/e2e-hub-tenant.yaml
+          changed_when: true
+
+        - name: "M02: Wait for Hub Tenant PHASE=Ready"
+          ansible.builtin.shell:
+            cmd: >-
+              oc get tenant {{ tenant_name }} -n {{ osac_namespace }}
+              -o jsonpath='{.status.phase}'
+          register: r_hub_phase
+          changed_when: false
+          retries: "{{ poll_retries }}"
+          delay: "{{ poll_delay }}"
+          until: "r_hub_phase.stdout == 'Ready'"
+
+        - name: "M02: Verify storage classes resolved"
+          ansible.builtin.shell:
+            cmd: >-
+              oc get tenant {{ tenant_name }} -n {{ osac_namespace }}
+              -o jsonpath='{.status.storageClasses}'
+          register: r_storage
+          changed_when: false
+          failed_when: "r_storage.stdout | length < 3"
+
+        # ── Module 03 — OCX Compute Catalog ───────────────────────────
+
+        - name: "M03: Write InstanceType manifest"
+          ansible.builtin.copy:
+            dest: /tmp/e2e-instance-type.yaml
+            mode: "0644"
+            content: |
+              {
+                "@type": "type.googleapis.com/osac.private.v1.InstanceType",
+                "name": "{{ instance_type_name }}",
+                "display_name": "E2E Small (1 vCPU, 2 GiB)",
+                "spec": {
+                  "cores": 1,
+                  "memory_gib": 2
+                }
+              }
+
+        - name: "M03: Create InstanceType"
+          ansible.builtin.command:
+            cmd: osac create -f /tmp/e2e-instance-type.yaml
+          changed_when: true
+
+        - name: "M03: Verify InstanceType is ACTIVE"
+          ansible.builtin.shell:
+            cmd: osac get instancetype | grep '{{ instance_type_name }}'
+          register: r_instance_type
+          changed_when: false
+          retries: 6
+          delay: 5
+          until: "'ACTIVE' in r_instance_type.stdout"
+
+        - name: "M03: Write CatalogItem manifest"
+          ansible.builtin.copy:
+            dest: /tmp/e2e-catalog-item.yaml
+            mode: "0644"
+            content: |
+              {
+                "@type": "type.googleapis.com/osac.private.v1.ComputeInstanceCatalogItem",
+                "name": "{{ catalog_item_name }}",
+                "display_name": "E2E Linux VM",
+                "template": "osac.templates.ocp_virt_vm",
+                "published": true,
+                "field_definitions": [
+                  "ssh_key",
+                  "image.source_ref",
+                  "boot_disk.size_gib",
+                  "instance_type",
+                  "network_attachments"
+                ]
+              }
+
+        - name: "M03: Create CatalogItem"
+          ansible.builtin.command:
+            cmd: osac create -f /tmp/e2e-catalog-item.yaml
+          changed_when: true
+
+        - name: "M03: Verify CatalogItem exists"
+          ansible.builtin.shell:
+            cmd: osac get computeinstancecatalogitem {{ catalog_item_name }}
+          register: r_catalog_item
+          changed_when: false
+          failed_when: r_catalog_item.rc != 0
+
+        # ── Module 04 — Virtual Networking ────────────────────────────
+
+        - name: "M04: Log in as tenant admin"
+          ansible.builtin.command:
+            cmd: >-
+              osac login --insecure
+              --address "{{ fulfillment_public }}"
+              --flow password
+              --user tenant_admin
+              --password "{{ tenant_password }}"
+          changed_when: false
+          no_log: true
+
+        - name: "M04: Get NetworkClass ID for cudn_net"
+          ansible.builtin.shell:
+            cmd: osac get networkclass | awk '/cudn_net/ {print $1; exit}'
+          register: r_nc_id
+          changed_when: false
+
+        - name: "M04: Create VirtualNetwork"
+          ansible.builtin.command:
+            cmd: >-
+              osac create virtualnetwork
+              --name {{ vnet_name }}
+              --network-class "{{ r_nc_id.stdout | trim }}"
+              --ipv4-cidr "{{ vnet_cidr }}"
+          changed_when: true
+
+        - name: "M04: Wait for VirtualNetwork READY"
+          ansible.builtin.shell:
+            cmd: osac get virtualnetwork {{ vnet_name }} | grep -c READY
+          register: r_vnet_ready
+          changed_when: false
+          retries: "{{ poll_retries }}"
+          delay: "{{ poll_delay }}"
+          until: "r_vnet_ready.stdout | int >= 1"
+
+        - name: "M04: Get VirtualNetwork ID"
+          ansible.builtin.shell:
+            cmd: osac get virtualnetworks | awk '/{{ vnet_name }}/ {print $1; exit}'
+          register: r_vnet_id
+          changed_when: false
+
+        - name: "M04: Create Subnet"
+          ansible.builtin.command:
+            cmd: >-
+              osac create subnet
+              --name {{ subnet_name }}
+              --virtual-network "{{ r_vnet_id.stdout | trim }}"
+              --ipv4-cidr "{{ subnet_cidr }}"
+          changed_when: true
+
+        - name: "M04: Wait for Subnet READY"
+          ansible.builtin.shell:
+            cmd: osac get subnets | grep '{{ subnet_name }}'
+          register: r_subnet_ready
+          changed_when: false
+          retries: "{{ poll_retries }}"
+          delay: "{{ poll_delay }}"
+          until: "'READY' in r_subnet_ready.stdout"
+
+        - name: "M04: Get Subnet ID"
+          ansible.builtin.shell:
+            cmd: osac get subnets | awk '/{{ subnet_name }}/ {print $1; exit}'
+          register: r_subnet_id
+          changed_when: false
+
+        - name: "M04: Verify CUDN namespace exists"
+          ansible.builtin.shell:
+            cmd: oc get ns -l 'osac.openshift.io/subnet-id' --no-headers | grep -c .
+          register: r_cudn_ns
+          changed_when: false
+          failed_when: r_cudn_ns.stdout | int < 1
+
+        - name: "M04: Create SecurityGroup"
+          ansible.builtin.command:
+            cmd: >-
+              osac create securitygroup
+              --name {{ sg_name }}
+              --virtual-network "{{ r_vnet_id.stdout | trim }}"
+              --ingress protocol=tcp,port-from=22,port-to=22,ipv4-cidr={{ vnet_cidr }}
+              --ingress protocol=icmp,ipv4-cidr={{ vnet_cidr }}
+              --egress protocol=all,ipv4-cidr=0.0.0.0/0
+          changed_when: true
+
+        - name: "M04: Wait for SecurityGroup READY"
+          ansible.builtin.shell:
+            cmd: osac get securitygroup | grep '{{ sg_name }}'
+          register: r_sg_ready
+          changed_when: false
+          retries: "{{ poll_retries }}"
+          delay: "{{ poll_delay }}"
+          until: "'READY' in r_sg_ready.stdout"
+
+        - name: "M04: Get SecurityGroup ID"
+          ansible.builtin.shell:
+            cmd: osac get securitygroup | awk '/{{ sg_name }}/ {print $1; exit}'
+          register: r_sg_id
+          changed_when: false
+
+        # ── Module 05 — Virtual Machine Lifecycle ─────────────────────
+
+        - name: "M05: Create ComputeInstance"
+          ansible.builtin.command:
+            cmd: >-
+              osac create computeinstance
+              --name {{ vm_name }}
+              --catalog-item {{ catalog_item_name }}
+              --instance-type {{ instance_type_name }}
+              --boot-disk-size 10
+              --run-strategy Always
+              --network-attachment "subnet={{ r_subnet_id.stdout | trim }},security-groups={{ r_sg_id.stdout | trim }}"
+          changed_when: true
+
+        - name: "M05: Wait for VM RUNNING"
+          ansible.builtin.shell:
+            cmd: osac get computeinstances | grep '{{ vm_name }}'
+          register: r_vm_running
+          changed_when: false
+          retries: "{{ poll_retries }}"
+          delay: "{{ poll_delay }}"
+          until: "'RUNNING' in r_vm_running.stdout"
+
+        - name: "M05: Get VM ID"
+          ansible.builtin.shell:
+            cmd: osac get computeinstances | awk '/{{ vm_name }}/ {print $1; exit}'
+          register: r_vm_id
+          changed_when: false
+
+        - name: "M05: Allocate PublicIP"
+          ansible.builtin.command:
+            cmd: >-
+              osac create publicip
+              --name {{ public_ip_name }}
+              --pool {{ public_ip_pool }}
+          changed_when: true
+
+        - name: "M05: Wait for PublicIP ALLOCATED"
+          ansible.builtin.shell:
+            cmd: osac get publicip | grep '{{ public_ip_name }}'
+          register: r_pip_allocated
+          changed_when: false
+          retries: 12
+          delay: 5
+          until: "'ALLOCATED' in r_pip_allocated.stdout"
+
+        - name: "M05: Attach PublicIP to VM"
+          ansible.builtin.command:
+            cmd: >-
+              osac create publicipattachment
+              --publicip {{ public_ip_name }}
+              --compute-instance {{ vm_name }}
+          changed_when: true
+
+        - name: "M05: Wait for PublicIPAttachment READY"
+          ansible.builtin.shell:
+            cmd: osac get publicipattachment | grep '{{ public_ip_name }}'
+          register: r_pip_attached
+          changed_when: false
+          retries: 12
+          delay: 5
+          until: "'READY' in r_pip_attached.stdout"
+
+        - name: "M05: Stop VM (set run_strategy to Halted)"
+          ansible.builtin.shell:
+            cmd: >-
+              osac edit computeinstance {{ vm_name }}
+              --set spec.run_strategy=Halted
+          changed_when: true
+
+        - name: "M05: Wait for VM STOPPED"
+          ansible.builtin.shell:
+            cmd: osac get computeinstances | grep '{{ vm_name }}'
+          register: r_vm_stopped
+          changed_when: false
+          retries: "{{ poll_retries }}"
+          delay: "{{ poll_delay }}"
+          until: "'STOPPED' in r_vm_stopped.stdout"
+
+        - name: "M05: Start VM (set run_strategy to Always)"
+          ansible.builtin.shell:
+            cmd: >-
+              osac edit computeinstance {{ vm_name }}
+              --set spec.run_strategy=Always
+          changed_when: true
+
+        - name: "M05: Wait for VM RUNNING again"
+          ansible.builtin.shell:
+            cmd: osac get computeinstances | grep '{{ vm_name }}'
+          register: r_vm_restarted
+          changed_when: false
+          retries: "{{ poll_retries }}"
+          delay: "{{ poll_delay }}"
+          until: "'RUNNING' in r_vm_restarted.stdout"
+
+      always:
+        # ── Cleanup (correct teardown order) ──────────────────────────
+
+        - name: "Cleanup: Detach PublicIP"
+          ansible.builtin.shell:
+            cmd: >-
+              osac delete publicipattachment
+              --publicip {{ public_ip_name }}
+              --compute-instance {{ vm_name }}
+          changed_when: true
+          failed_when: false
+
+        - name: "Cleanup: Wait for PublicIP detached"
+          ansible.builtin.shell:
+            cmd: osac get publicipattachment | grep -c '{{ public_ip_name }}'
+          register: r_pip_detached
+          changed_when: false
+          failed_when: false
+          retries: 12
+          delay: 5
+          until: "r_pip_detached.stdout | int == 0"
+
+        - name: "Cleanup: Delete VM"
+          ansible.builtin.command:
+            cmd: osac delete computeinstance {{ vm_name }}
+          changed_when: true
+          failed_when: false
+
+        - name: "Cleanup: Wait for VM deleted"
+          ansible.builtin.shell:
+            cmd: osac get computeinstances | grep -c '{{ vm_name }}'
+          register: r_vm_deleted
+          changed_when: false
+          failed_when: false
+          retries: "{{ poll_retries }}"
+          delay: "{{ poll_delay }}"
+          until: "r_vm_deleted.stdout | int == 0"
+
+        - name: "Cleanup: Delete PublicIP"
+          ansible.builtin.command:
+            cmd: osac delete publicip {{ public_ip_name }}
+          changed_when: true
+          failed_when: false
+
+        - name: "Cleanup: Delete SecurityGroup"
+          ansible.builtin.command:
+            cmd: osac delete securitygroup {{ sg_name }}
+          changed_when: true
+          failed_when: false
+
+        - name: "Cleanup: Wait for SecurityGroup deleted"
+          ansible.builtin.shell:
+            cmd: osac get securitygroup | grep -c '{{ sg_name }}'
+          register: r_sg_deleted
+          changed_when: false
+          failed_when: false
+          retries: 12
+          delay: 5
+          until: "r_sg_deleted.stdout | int == 0"
+
+        - name: "Cleanup: Delete Subnet"
+          ansible.builtin.command:
+            cmd: osac delete subnet {{ subnet_name }}
+          changed_when: true
+          failed_when: false
+
+        - name: "Cleanup: Wait for Subnet deleted"
+          ansible.builtin.shell:
+            cmd: osac get subnets | grep -c '{{ subnet_name }}'
+          register: r_subnet_deleted
+          changed_when: false
+          failed_when: false
+          retries: "{{ poll_retries }}"
+          delay: "{{ poll_delay }}"
+          until: "r_subnet_deleted.stdout | int == 0"
+
+        - name: "Cleanup: Delete VirtualNetwork"
+          ansible.builtin.command:
+            cmd: osac delete virtualnetwork {{ vnet_name }}
+          changed_when: true
+          failed_when: false
+
+        - name: "Cleanup: Wait for VirtualNetwork deleted"
+          ansible.builtin.shell:
+            cmd: osac get virtualnetworks | grep -c '{{ vnet_name }}'
+          register: r_vnet_deleted
+          changed_when: false
+          failed_when: false
+          retries: 12
+          delay: 5
+          until: "r_vnet_deleted.stdout | int == 0"
+
+        - name: "Cleanup: Delete Hub Tenant CR"
+          ansible.builtin.command:
+            cmd: oc delete tenant {{ tenant_name }} -n {{ osac_namespace }}
+          changed_when: true
+          failed_when: false
+
+        - name: "Cleanup: Log in as admin for tenant deletion"
+          ansible.builtin.command:
+            cmd: >-
+              osac login --insecure
+              --address "{{ fulfillment_public }}"
+              --flow password
+              --user admin
+              --password "{{ admin_password }}"
+          changed_when: false
+          no_log: true
+          failed_when: false
+
+        - name: "Cleanup: Delete fulfillment tenant"
+          ansible.builtin.command:
+            cmd: osac delete tenant {{ tenant_name }}
+          changed_when: true
+          failed_when: false
+
+        - name: "Cleanup: Remove temp manifests"
+          ansible.builtin.file:
+            path: "{{ item }}"
+            state: absent
+          loop:
+            - /tmp/e2e-tenant.yaml
+            - /tmp/e2e-hub-tenant.yaml
+            - /tmp/e2e-instance-type.yaml
+            - /tmp/e2e-catalog-item.yaml
+          failed_when: false

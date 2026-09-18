@@ -1,0 +1,80 @@
+---
+# HEALTHCHECK — Quick environment readiness check
+# Verifies the OSAC lab environment is functional and ready for students.
+# Should complete in under 60 seconds.
+#
+# Required env vars: BASTION_HOST, BASTION_PORT, BASTION_USER, BASTION_PASSWORD
+# Required extravars: fulfillment_public, admin_password, tenant_password
+#
+# Exit 0 = healthy, non-zero = unhealthy.
+
+- name: Build inventory
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Add bastion host
+      ansible.builtin.add_host:
+        name: "{{ lookup('ansible.builtin.env', 'BASTION_HOST') }}"
+        ansible_ssh_host: "{{ lookup('ansible.builtin.env', 'BASTION_HOST') }}"
+        ansible_ssh_port: "{{ lookup('ansible.builtin.env', 'BASTION_PORT') | default('22', true) }}"
+        ansible_ssh_user: "{{ lookup('ansible.builtin.env', 'BASTION_USER') }}"
+        ansible_ssh_pass: "{{ lookup('ansible.builtin.env', 'BASTION_PASSWORD') }}"
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+        groups: bastion
+
+- name: Environment Health Check
+  hosts: bastion
+  gather_facts: false
+  become: false
+  vars:
+    osac_namespace: osac
+  tasks:
+    - name: Verify SSH connectivity
+      ansible.builtin.ping:
+
+    - name: Verify osac CLI is available
+      ansible.builtin.command:
+        cmd: osac version
+      changed_when: false
+
+    - name: Verify oc CLI and cluster access
+      ansible.builtin.command:
+        cmd: oc whoami
+      changed_when: false
+
+    - name: Verify OSAC pods are running
+      ansible.builtin.shell:
+        cmd: >-
+          oc get pods -n {{ osac_namespace }}
+          --field-selector=status.phase=Running
+          --no-headers | wc -l
+      register: r_pod_count
+      changed_when: false
+      failed_when: r_pod_count.stdout | int < 1
+
+    - name: Verify admin login to OSAC API
+      ansible.builtin.command:
+        cmd: >-
+          osac login --insecure
+          --address "{{ fulfillment_public }}"
+          --flow password
+          --user admin
+          --password "{{ admin_password }}"
+      changed_when: false
+      no_log: true
+
+    - name: Verify NetworkClass cudn_net exists
+      ansible.builtin.shell:
+        cmd: osac get networkclass | grep -q cudn_net
+      changed_when: false
+
+    - name: Verify tenant user login
+      ansible.builtin.command:
+        cmd: >-
+          osac login --insecure
+          --address "{{ fulfillment_public }}"
+          --flow password
+          --user tenant_admin
+          --password "{{ tenant_password }}"
+      changed_when: false
+      no_log: true
