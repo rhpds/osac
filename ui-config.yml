@@ -9,8 +9,12 @@ view_switcher:
   default_mode: split
 
 tabs:
-  - name: ">_ terminal"
-    path: /wetty
-    port: 443
-  - name: Placeholder
-    url: /placeholder
+- name: Red Hat cloud extensions
+  url: 'https://osac-ui-osac.${DOMAIN}'
+- name: OpenShift Console
+  url: 'https://console-openshift-console.${DOMAIN}'
+- name: Keycloak
+  url: 'https://keycloak-keycloak.${DOMAIN}'
+- name: Terminal
+  path: /wetty
+  port: 443
