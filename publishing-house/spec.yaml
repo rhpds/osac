@@ -73,7 +73,7 @@ spec:
 development:
   automation:
     ansible:
-      status: not_started
+      status: in_progress
   e2e:
     status: in_progress
   healthCheck:
