@@ -1,4 +1,4 @@
-# Module 01 — OCX Platform Orientation
+# Module 01 — Exploring the Red Hat cloud extensions Platform
 
 ### Brief Overview
 

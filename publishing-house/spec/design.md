@@ -38,18 +38,17 @@ Hands-on lab
 
 | Module | Title | Duration |
 |--------|-------|----------|
-| 1 | OCX Platform Orientation | 15 min |
-| 2 | Tenant Administration | 25 min |
-| 3 | OCX Compute Catalog | 20 min |
-| 4 | Virtual Networking | 25 min |
-| 5 | Virtual Machine Lifecycle | 30 min |
-| — | Total hands-on | ~115 min |
+| 1 | Exploring the Red Hat cloud extensions Platform | 15 min |
+| 2 | Tenant Onboarding and Identity Management | 25 min |
+| 3 | Virtual Machine as a Service (VMaaS) | 20 min |
+| 4 | Cluster as a Service (CaaS) | 25 min |
+| — | Total hands-on | ~85 min |
 | — | Intro / presentation | ~5 min |
-| — | Total lab | ~120 min |
+| — | Total lab | ~90 min |
 
-**Module 1** covers platform orientation — exploring the OCX UI, understanding the NetworkClass model (CUDN, MetalLB, etc.), and confirming the lab environment works. Short and fast (15 min) so participants spend most of their time on hands-on tasks.
+**Module 1** covers platform orientation — verifying the platform components, exploring the web UI, and examining the Keycloak realm and Kafka cluster that underpin tenant identity and eventing.
 
-**Modules 2–5** follow the natural admin workflow: create the tenant (with both API and Kubernetes layers), publish the VM catalog (InstanceTypes + Catalog Items), configure isolated tenant networking (VirtualNetwork → Subnet/CUDN → SecurityGroup/NetworkPolicy), and provision and operate a VM through its full lifecycle including console access, public IP attachment, and teardown.
+**Modules 2–4** follow the natural admin workflow: onboard a tenant with federated SSO and role-based access, publish the VM catalog and deploy a virtual machine as a tenant administrator, and provision a bare-metal host to let tenants order hosted OpenShift clusters from the cluster catalog.
 
 ## Difficulty Level
 

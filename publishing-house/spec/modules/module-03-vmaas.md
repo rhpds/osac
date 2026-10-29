@@ -1,4 +1,4 @@
-# Module 03 — OCX Compute Catalog
+# Module 03 — Virtual Machine as a Service (VMaaS)
 
 ### Brief Overview
 

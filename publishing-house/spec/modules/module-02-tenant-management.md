@@ -1,4 +1,4 @@
-# Module 02 — Tenant Administration
+# Module 02 — Tenant Onboarding and Identity Management
 
 ### Brief Overview
 

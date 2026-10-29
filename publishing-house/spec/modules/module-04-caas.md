@@ -1,4 +1,4 @@
-# Module 04 — Virtual Networking
+# Module 04 — Cluster as a Service (CaaS)
 
 ### Brief Overview
 
