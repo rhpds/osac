@@ -17,7 +17,7 @@ You started by getting to know the platform before trusting it with tenants.
 * Examined the `osac` Keycloak realm that governs tenant identity
 * Inspected the Kafka cluster, its topics, and its users to confirm the event backbone is healthy
 
-=== Module 2: Managing Tenants
+=== Module 2: Tenant Onboarding and Identity Management
 
 You onboarded SAI Corp and proved that access control holds.
 
