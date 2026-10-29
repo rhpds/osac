@@ -34,7 +34,7 @@ spec:
   - id: module-04
     title: Cluster as a Service (CaaS)
     duration_min: 25
-    status: in_progress
+    status: complete
   environment:
     platform: ocp
     topology: per-student
@@ -69,11 +69,11 @@ spec:
 development:
   automation:
     ansible:
-      status: in_progress
+      status: complete
   e2e:
-    status: in_progress
+    status: complete
   healthCheck:
-    status: in_progress
+    status: complete
 compliance:
   last_hard_check: null
   hard_result: null
