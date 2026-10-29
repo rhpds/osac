@@ -1,4 +1,4 @@
-# OpenShift Cloud Extensions: Tenant Administration and VM Lifecycle
+# Red Hat cloud extensions: Tenant Administration and VM Lifecycle
 
 Welcome to the project spec. Use the navigation to browse the design and module outlines.
 
