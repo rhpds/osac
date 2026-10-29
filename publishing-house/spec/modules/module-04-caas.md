@@ -2,79 +2,56 @@
 
 ### Brief Overview
 
-OCX enforces tenant isolation through virtual networking backed by OVN Kubernetes. This module covers the three-tier networking model: a **VirtualNetwork** (the tenant's address space), a **Subnet** (a workload-ready slice that triggers actual CUDN provisioning), and a **SecurityGroup** (a virtual firewall that becomes a Kubernetes NetworkPolicy in the subnet namespace). After this module, the tenant has an isolated network environment ready for VMs.
+This module enables Cluster as a Service (CaaS) on the Red Hat cloud extensions platform. As the Sovereign Cloud Corp platform administrator, the learner validates the pre-configured Sushy Redfish emulator on the bare-metal fabric (BMF) host, registers a libvirt VM as a `BareMetalHost`, and publishes the catalog objects tenants need. Then, as Alice (SAI Corp tenant administrator), the learner orders a hosted OpenShift cluster with the `osac` CLI. HyperShift runs the control plane on the hub, and the worker node boots onto the registered bare-metal host. The learner finishes by publishing the hosted cluster's API and console through the hub router.
 
 ### Audience and Time
 
-**Audience**: OCX administrators and platform engineers responsible for designing and implementing tenant network topology and security policy.
+**Audience**: Platform administrators and platform engineers who offer self-service OpenShift clusters to tenants.
 
-**Prerequisites for this module**: Module 02 complete; a tenant exists. Module 03 is independent of networking.
+**Prerequisites for this module**: Module 02 complete. This module uses the `sai-corp` tenant users Alice and Bob created there; without them the exercises fail.
 
 **Duration**: 25 min
 
 ### Learning Objectives
 
-- Create a VirtualNetwork that defines the tenant's private address space using the CUDN NetworkClass
-- Create a Subnet that provisions a real OVN ClusterUserDefinedNetwork (CUDN) overlay for workload connectivity
-- Create a SecurityGroup that implements tenant firewall rules as Kubernetes NetworkPolicies in the subnet namespace
-- Verify the cluster-level evidence of CUDN provisioning and NetworkPolicy enforcement
+- Validate the Sushy setup on the BMF host so Ironic can manage libvirt VMs through Redfish
+- Register a `BareMetalHost` that points at the Sushy Redfish endpoint
+- Verify that Metal3 inspects the host and makes it `available`
+- Publish the platform catalog objects: `BareMetalInstanceType`, `DiskImage`, `ClusterVersion`, and `ClusterCatalogItem`
+- Order a hosted OpenShift cluster as a tenant using the `osac` CLI
+- Access the hosted cluster's API and console through the hub router
 
 ### Lab Structure
 
 | Section | Title | Duration |
 |---------|-------|----------|
-| 1 | Create a VirtualNetwork | 8 min |
-| 2 | Create a Subnet (triggers CUDN provisioning) | 9 min |
-| 3 | Create a SecurityGroup and verify NetworkPolicy | 8 min |
+| 1 | Set up the lab environment | 3 min |
+| 2 | Configure platform networking | 3 min |
+| 3 | Provision a bare-metal worker host | 6 min |
+| 4 | Publish cluster catalog objects | 4 min |
+| 5 | Order a hosted cluster as the tenant administrator (Alice) | 6 min |
+| 6 | Access the hosted cluster | 3 min |
 
 ### Detailed Steps
 
-1. Log in as tenant admin and create a VirtualNetwork using the CLI:
-   ```bash
-   NC_ID=$(osac get networkclass | awk '/cudn_net/ {print $1; exit}')
-   osac create virtualnetwork --name demo-vnet --network-class "${NC_ID}" --ipv4-cidr "10.100.0.0/16"
-   osac get virtualnetwork demo-vnet   # wait for STATE = READY
-   ```
-2. Note that the VirtualNetwork is a **logical grouping** — no OVN resources are provisioned yet. The CUDN is built at Subnet creation.
-3. Save the VirtualNetwork ID: `export VNET_ID=$(osac get virtualnetworks | awk '/demo-vnet/ {print $1}')`.
-4. Create a Subnet inside the VirtualNetwork:
-   ```bash
-   osac create subnet --name demo-subnet --virtual-network "${VNET_ID}" --ipv4-cidr "10.100.1.0/24"
-   # poll: watch -n5 'osac get subnets | grep demo-subnet'  — wait for STATE = READY (~1–3 min)
-   ```
-5. Once READY, verify the cluster-level resources created by OCX/AAP:
-   ```bash
-   oc get ns -l 'osac.openshift.io/subnet-id'         # a namespace like subnet-xxxxx was created
-   oc get clusteruserdefinednetwork subnet-xxxxx        # the OVN CUDN with your /24 CIDR
-   ```
-   This proves the Subnet is not just a database entry — it is a real OVN overlay network.
-6. Save the Subnet ID: `export SUBNET_ID=$(osac get subnets | awk '/demo-subnet/ {print $1}')`.
-7. Create a SecurityGroup with lab-appropriate rules:
-   ```bash
-   osac create securitygroup --name demo-sg \
-     --virtual-network "${VNET_ID}" \
-     --ingress protocol=tcp,port-from=22,port-to=22,ipv4-cidr=10.100.0.0/16 \
-     --ingress protocol=icmp,ipv4-cidr=10.100.0.0/16 \
-     --egress protocol=all,ipv4-cidr=0.0.0.0/0
-   # wait for STATE = READY
-   ```
-8. Verify the SecurityGroup became a Kubernetes NetworkPolicy in the subnet namespace:
-   ```bash
-   oc get networkpolicy -n subnet-xxxxx   # NetworkPolicy named sg-securitygroup-yyyyy
-   ```
-9. Save the SecurityGroup ID: `export SG_ID=$(osac get securitygroup | awk '/demo-sg/ {print $1}')`.
+1. Set up the lab environment: verify the Sushy emulator responds on the BMF host, generate an SSH key pair if needed, extract the cluster pull secret from `openshift-config`, log in to the OSAC private API as the cloud administrator, and confirm that CaaS and BMaaS are both enabled.
+2. Configure platform networking: validate that the Metal3 operator watches `BareMetalHosts` in all namespaces, verify that OSAC inventory is configured for the `osac` namespace, verify that the fulfillment service uses the `noop` DNS driver, and verify the `k8s-only` NetworkClass fabric manager.
+3. Provision a bare-metal worker host: on the BMF host, create a blank-disk worker VM with a fixed MAC address, confirm Secure Boot is off, and check that the VM is running. Back on the bastion, create the BMC secret and the `BareMetalHost` labeled `osac.openshift.io/host-type: default`, watch it move through `registering` → `inspecting` → `available`, and verify the Ironic-to-IPA return path (MachineConfig on the hub).
+4. Publish cluster catalog objects: create and validate a `BareMetalInstanceType`, validate the RHCOS `DiskImage` and the available `ClusterVersions`, then create, publish, and validate a `ClusterCatalogItem`.
+5. Order a hosted cluster as Alice: confirm the Alice session and the published catalog item, create a pull secret in Alice's tenant, and place the cluster order with `--catalog-item`. Check that the cluster is `Progressing` and inspect the `ClusterOrder`. Apply the `dns.noop` lab workarounds: check that the tenant's default subnet is `Ready`, wait for the MetalLB API VIP and publish `api` and `api-int` in libvirt DNS, wait for Ironic to provision the worker, give the discovery agent temporary wildcard DNS, and wait for the agent to join the hosted cluster. Connect to the hosted cluster, link the worker node to the hub's machine record (`providerID`), point the `*.apps` routes at the worker, and verify that the cluster reaches `Ready` from the platform side, on the hub, and from inside the cluster.
+6. Access the hosted cluster: publish the hosted API through a hub `passthrough` route and test it, check hub-to-worker ingress reachability, publish the console on the hub, give the console and OAuth server a trusted certificate for the public hostname, and open the console in a browser.
 
 ### Key Takeaways
 
-- OCX networking has three tiers: VirtualNetwork (address-space definition) → Subnet (CUDN provisioning trigger) → SecurityGroup (firewall/NetworkPolicy).
-- Creating a **Subnet** is where real OVN resources are built: OCX provisions a Kubernetes namespace and a `ClusterUserDefinedNetwork` — tenant VMs will run inside this namespace.
-- The Subnet's friendly name (`demo-subnet`) is separate from the Kubernetes namespace name (`subnet-xxxxx`), which is generated by the operator.
-- A **SecurityGroup** translates OCX ingress/egress rules into Kubernetes **NetworkPolicies** in the subnet namespace — OCX enforces isolation using standard Kubernetes primitives under the hood.
-- Security groups are scoped to a VirtualNetwork; all egress rules require an explicit `ipv4_cidr` even for `PROTOCOL_ALL`.
+- HyperShift separates the control plane from the workers: the hosted control plane runs as pods on the hub, and the worker runs on a bare-metal host.
+- Sushy emulates a Redfish BMC for libvirt VMs, so Ironic manages them exactly as it would a physical server with iDRAC or iLO.
+- BMaaS and CaaS are gated independently by Helm feature flags, but `BareMetalInstanceType` and cluster node provisioning require BMaaS.
+- Catalog items decouple ordering from implementation: tenants pick a `--catalog-item`, and the platform controls the template, OCP version, and hardware profile behind it.
+- `--catalog-item` replaces the deprecated `--template` flag for cluster orders; the two flags are mutually exclusive.
 
 ### Infrastructure Notes
 
-- Subnet CIDR must be a subset of the parent VirtualNetwork CIDR (`10.100.1.0/24` inside `10.100.0.0/16`).
-- Network CIDR ranges should not overlap the underlying OpenShift cluster network.
-- The VirtualNetwork, Subnet, and SecurityGroup IDs saved in this module are used in Module 5 when provisioning the VM.
-- AAP runs the CUDN provisioning job in the background — allow 1–3 minutes for Subnet STATE to reach READY.
+- Requires a BMF host running libvirt and the Sushy emulator; the module's appendix documents how to set this up outside RHDP, where it is already provisioned.
+- The worker is a libvirt VM on `192.168.122.0/24` behind the BMF host; lab provisioning maintains the Ironic-to-IPA path, hub routes, and firewall rules.
+- The environment uses the `noop` DNS driver (no external Route53 access), so the DNS, `providerID`, ingress, and route-publishing workarounds in Exercises 5 and 6 are lab-specific and not needed with a real DNS driver.
+- Worker provisioning and agent installation take several minutes each; the page includes troubleshooting for stuck inspection, provisioning, and console availability.

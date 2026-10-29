@@ -2,47 +2,46 @@
 
 ### Brief Overview
 
-This module introduces participants to the OpenShift Cloud Extensions (OCX) platform. Participants log in to the admin console, explore the main navigation areas, and examine the platform's NetworkClass model — the OCX mechanism that controls how tenant virtual networks are provisioned under the hood (CUDN overlay, MetalLB L2, or other backends). The module is intentionally short; its purpose is to orient participants and confirm the lab environment is functional before they tackle hands-on tasks.
+As the Sovereign Cloud Corp platform engineer, participants walk through a freshly deployed Red Hat cloud extensions environment before onboarding any tenants. They verify that the platform components in the `osac` namespace are healthy, explore the web UI, examine the Keycloak `osac` realm that governs tenant identity, and inspect the Kafka cluster that carries platform events. The module establishes a healthy baseline and an understanding of the platform's architecture before tenant management in Module 2.
 
 ### Audience and Time
 
-**Audience**: OCX administrators and platform engineers. Participants should have basic OpenShift console familiarity.
+**Audience**: Platform engineers and administrators responsible for operating Red Hat cloud extensions. Participants should have basic OpenShift CLI and console familiarity.
 
 **Duration**: 15 min
 
 ### Learning Objectives
 
-- Identify the main sections of the OCX administrative console and explain the distinction between provider admin and tenant admin roles
-- Explain the NetworkClass model and why CUDN (`cudn_net`) is the default for tenant virtual networks on this platform
-- Verify that both the admin account and end-user account are accessible and the lab environment is ready to proceed
+- Verify that all Red Hat cloud extensions operators and pods are running in the `osac` namespace
+- Navigate the Red Hat cloud extensions web UI and identify its key sections
+- Examine the Keycloak `osac` realm configuration that governs tenant identity
+- Inspect the Kafka cluster to confirm the messaging infrastructure is healthy
 
 ### Lab Structure
 
 | Section | Title | Duration |
 |---------|-------|----------|
-| 1 | Log in and explore the OCX console | 5 min |
-| 2 | Review NetworkClass and platform capabilities | 5 min |
-| 3 | Verify lab environment readiness | 5 min |
+| 1 | Verify the Red Hat cloud extensions namespace | 4 min |
+| 2 | Explore the Red Hat cloud extensions web UI | 3 min |
+| 3 | Examine the Keycloak realm configuration | 4 min |
+| 4 | Inspect the Kafka cluster | 4 min |
 
 ### Detailed Steps
 
-1. Log in to the OCX administrative console using the admin credentials provided in the lab environment.
-2. Identify the main navigation sections: Tenants, Catalog Items, Instance Types, Virtual Networks, and Virtual Machines.
-3. Navigate to **Networking → Network Classes** and review the available network implementations.
-4. Observe that **CUDN Network Implementation** (`cudn_net`) is the default — tenant VirtualNetworks use OVN-backed isolated overlays by default.
-5. From the lab terminal, run `osac get networkclass` to see all available implementations (CUDN, MetalLB L2, etc.) and confirm CUDN is marked as default.
-6. Log in to the tenant user account to confirm it is accessible — then return to the admin account.
-7. Confirm the lab environment is healthy and ready to proceed to Module 2.
+1. Verify the Red Hat cloud extensions namespace: in the *Terminal* tab, log in to OpenShift with `oc login` as cluster admin and confirm identity with `oc whoami` and `oc cluster-info`. Run `oc get pods -n osac` (all pods `Running` or `Completed`), `oc get csv -n osac` (all CSVs `Succeeded`), `oc get svc -n osac`, and `oc get routes -n osac` (routes for `osac-ui`, `keycloak`, and other fulfillment services).
+2. Explore the Red Hat cloud extensions web UI: in the *cloud extensions* tab, log in with the platform admin credentials and locate the main sections — **Tenants** (only `shared` and `system` exist), **Catalog** (empty), **Projects** (only `default`), **Infrastructure** (Storage, Instance Types, External IP Pools, Bare metal instance types, Disk Images), **Networking** (Virtual Networks and Security Groups, empty until tenants exist), and **Secrets**.
+3. Examine the Keycloak realm configuration: run `oc get pods -n keycloak` and `oc describe deployment keycloak-service -n keycloak`. In the *Keycloak* tab, log in as the Keycloak admin, select the **osac** realm, and review **Realm Settings** (session timeouts and token lifetimes). From the CLI, check `oc get endpoints keycloak -n keycloak` and the Keycloak ConfigMaps, then confirm the realm is served with `curl` against `{osac_keycloak_url}/realms/osac`.
+4. Inspect the Kafka cluster: run `oc get kafka -n osac-kafka` and `oc describe kafka -n osac-kafka`, check broker pods with `oc get pods -n osac-kafka -l strimzi.io/kind=Kafka`, list `oc get kafkatopics -n osac-kafka` (note the `osac-` topics) and `oc get kafkausers -n osac-kafka`, and confirm the cluster status conditions show `Ready` is `True`.
 
 ### Key Takeaways
 
-- OCX is built on Red Hat OpenShift and exposes a cloud-native API for multi-tenant VM infrastructure.
-- OCX separates roles: the **provider admin** manages platform resources (NetworkClasses, IP pools, catalog items, instance types); **tenant admins** consume them to provision VMs.
-- A **NetworkClass** is the OCX equivalent of a Kubernetes StorageClass for networking — it determines which backend (CUDN, MetalLB, Netris) provisions the overlay when a tenant creates a VirtualNetwork.
-- CUDN (`cudn_net`) uses OVN Kubernetes — tenant VMs get isolated L2 networks without tenants needing to know the plumbing.
+- Every platform operation flows through three core layers: identity (Keycloak), orchestration (osac-operator and fulfillment-service), and messaging (Kafka).
+- Healthy CSVs are a prerequisite; a degraded operator means the platform cannot process tenant workload requests.
+- The Keycloak `osac` realm is the trust anchor for all tenant authentication.
+- Kafka is the event backbone for catalog requests, tenant lifecycle events, and workload status updates.
 
 ### Infrastructure Notes
 
-- Participants access a pre-deployed OCX environment; no cluster setup is needed.
-- The `osac` CLI is pre-installed and configured in the lab terminal.
-- Both an admin credential and a tenant credential are provided in the lab environment details.
+- Participants use a pre-deployed Red Hat cloud extensions environment on OpenShift; no cluster setup is needed.
+- Platform components run in the `osac` namespace, Keycloak in `keycloak`, and Kafka (Strimzi) in `osac-kafka`.
+- The lab provides OpenShift cluster admin, Red Hat cloud extensions admin, and Keycloak admin credentials, plus *Terminal*, *cloud extensions*, and *Keycloak* tabs.

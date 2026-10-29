@@ -11,13 +11,13 @@ project:
   jira_ticket: RHDPCD-1059
   workflow_id: 85c1cfbd-2bae-4a23-a3a8-10ba2344ea0b
 spec:
-  title: 'OpenShift Cloud Extensions: Tenant Administration and VM Lifecycle'
+  title: Introduction to Red Hat cloud extensions
   learning_objectives:
-  - Create and manage OCX tenants using the admin interface
-  - Build and publish VM templates for use within an OCX tenant
-  - Configure virtual networks, subnetworks, and security groups for tenant isolation
-  - Provision and manage virtual machines within an OCX tenant environment
-  - Explore OCX as an end user to request and access VM resources
+  - Verify the health of the Red Hat cloud extensions platform components, including the `osac` operators, Keycloak realm, and Kafka cluster
+  - Create a tenant and onboard its users through federated SSO with just-in-time provisioning
+  - Assign tenant-admin and project viewer roles and verify RBAC enforcement
+  - Publish a `ComputeInstanceCatalogItem` and deploy a virtual machine from the catalog as a tenant administrator
+  - Order a hosted OpenShift cluster on bare-metal capacity as a tenant using the `osac` CLI
   modules:
   - id: module-01
     title: Exploring the Red Hat cloud extensions Platform

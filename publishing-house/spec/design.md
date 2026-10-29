@@ -1,30 +1,31 @@
-# OpenShift Cloud Extensions: Tenant Administration and VM Lifecycle
+# Introduction to Red Hat cloud extensions
 
 ## Overview
 
-This lab introduces participants to the OpenShift Cloud Extensions (OCX) platform — a sovereign cloud solution built on Red Hat OpenShift that provides multi-tenant virtual machine infrastructure with integrated identity management and networking. Participants take on the role of an OCX administrator to set up and operate the platform, then switch to the end-user perspective to consume those resources.
+This lab introduces participants to Red Hat cloud extensions — a sovereign cloud platform built on Red Hat OpenShift that provides multi-tenant self-service infrastructure with integrated identity management, an event backbone, and automated fulfillment. Participants take on the role of a Platform Engineer at Sovereign Cloud Corp, a European government services provider, and onboard a first government tenant, SAI Corp.
 
-The lab covers the full operational workflow: creating and managing tenants, building VM templates, configuring virtual networks and security policies, and provisioning virtual machines — giving participants the hands-on skills to operate an OCX environment from both the admin and user perspective.
+The lab covers the full operational workflow: verifying platform health, onboarding a tenant with federated SSO and role-based access control, publishing a virtual machine catalog so tenant users can deploy VMs on demand (VMaaS), and provisioning bare-metal capacity so tenants can order hosted OpenShift clusters (CaaS) — from both the platform administrator and the tenant user perspective.
 
 ## Target Audience
 
-OCX administrators, platform engineers, and operations teams responsible for deploying, configuring, and operating OCX environments. Participants should have basic familiarity with Red Hat OpenShift (navigating the console, understanding namespaces) and general cloud concepts such as tenants, virtual networks, and virtual machines. Prior knowledge of Sovereign Cloud concepts is helpful but not required.
+Platform Engineers and Cloud Architects responsible for deploying, configuring, and operating a Red Hat cloud extensions platform. Participants should be familiar with Red Hat OpenShift and Kubernetes concepts (namespaces, operators, custom resources), the `oc` CLI, YAML, and general cloud concepts such as tenants, virtual machines, and role-based access control.
 
 ## Prerequisites
 
-- Basic familiarity with Red Hat OpenShift (console navigation, namespaces)
-- Understanding of general cloud concepts: tenants, virtual networks, virtual machines
-- An OCX environment is provided — no installation required
+- Familiarity with Red Hat OpenShift and Kubernetes concepts (projects, namespaces, operators, CRDs) and the `oc` CLI
+- Reading and editing YAML, and intermediate Linux command-line usage
+- Understanding of virtual machines, multi-tenancy, and role-based access control (RBAC)
+- A Red Hat cloud extensions environment is provided — no installation required
 
 ## Learning Objectives
 
 By the end of this lab, participants will be able to:
 
-- Create and manage OCX tenants using the admin interface
-- Build and publish VM templates for use within an OCX tenant
-- Configure virtual networks, subnetworks, and security groups for tenant isolation
-- Provision and manage virtual machines within an OCX tenant environment
-- Explore OCX as an end user to request and access VM resources
+- Verify the health of the Red Hat cloud extensions platform components, including the `osac` operators, Keycloak realm, and Kafka cluster
+- Create a tenant and onboard its users through federated SSO with just-in-time provisioning
+- Assign tenant-admin and project viewer roles and verify RBAC enforcement
+- Publish a `ComputeInstanceCatalogItem` and deploy a virtual machine from the catalog as a tenant administrator
+- Order a hosted OpenShift cluster on bare-metal capacity as a tenant using the `osac` CLI
 
 ## Content Type
 
@@ -32,7 +33,11 @@ Hands-on lab
 
 ## Products & Technologies
 
-- **OpenShift Cloud Extensions (OCX)** — sovereign cloud platform providing multi-tenant VM infrastructure
+- **Red Hat cloud extensions** — sovereign cloud platform providing multi-tenant self-service VMs and clusters (`osac` CLI)
+- **Red Hat OpenShift Container Platform** — including OpenShift Virtualization, hosted control planes (HyperShift), and Metal3 bare-metal provisioning
+- **Red Hat build of Keycloak** — tenant identity and federated SSO
+- **Streams for Apache Kafka** — platform event backbone
+- **Red Hat Ansible Automation Platform** — workload fulfillment
 
 ## Module Map
 
@@ -56,23 +61,24 @@ Intermediate
 
 ## Environment
 
-Participants access a pre-deployed OCX environment running on Red Hat OpenShift. The lab provides both an admin account and an end-user account to demonstrate both administrative and consumer perspectives. No cluster setup or OCX installation is required — the environment is ready when the lab starts.
+Participants access a pre-deployed Red Hat cloud extensions environment running on Red Hat OpenShift. The lab interface provides the Red Hat cloud extensions UI and a terminal with the `oc` and `osac` CLIs. Participants work as the platform administrator and as two tenant users, Alice (tenant administrator) and Bob (project viewer). No cluster setup or platform installation is required — the environment is ready when the lab starts.
 
 ## Infrastructure Requirements
 
 - **Platform:** OCP
 - **Cloud provider:** CNV
-- **Topology:** Per-student (each student gets a dedicated OCX environment)
+- **Topology:** Per-student (each student gets a dedicated Red Hat cloud extensions environment)
 - **Cluster type:** Multinode
 - **OCP version:** 4.22 (minimum)
 - **Control plane:** 3 nodes, 16 vCPU, 32GB RAM each
 - **Workers:** 2 nodes (default; up to 5), 64 vCPU, 128GB RAM, 512GB root disk, 2×2TB extra disks each
 - **Automation:** Ansible (`rhpds.sovereign_cloud.ocp4_workload_osac`)
-- **Provisioning time:** ~110 min total (~75 min base cluster + ~25 min OCX deployment)
-- **AI/MaaS:** TBD
+- **Provisioning time:** ~110 min total (~75 min base cluster + ~25 min Red Hat cloud extensions deployment)
+- **AI/MaaS:** None
 - **External services:** github.com, quay.io, mirror.openshift.com, rhdp-private.s3.us-east-1.amazonaws.com (AAP license)
 - **Non-GA products:** None
 
 ## Assessment Strategy (Optional)
 
-Observation-based: participants demonstrate successful completion by showing the expected state in the OCX UI or CLI output. No automated solve/validate scripts are required for this classic showroom lab.
+Observation-based: participants demonstrate successful completion by showing the expected state in the Red Hat cloud extensions UI or CLI output. Modules 2–4 also provide a *Solve* button that automates the module so participants can catch up.
+
