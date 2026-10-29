@@ -1,0 +1,10 @@
+---
+# Module 1: Exploring the Red Hat Cloud Extensions Platform — solve tasks
+# Generate with: /ftl:rhdp-lab-validator
+- name: Module 01 - Solve placeholder
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Placeholder
+      ansible.builtin.debug:
+        msg: "Nothing to solve for Module 1."

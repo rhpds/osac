@@ -1,4 +1,6 @@
 * xref:index.adoc[Introduction to Red Hat cloud extensions]
+* xref:credentials.adoc[Credentials]
+* xref:overview.adoc[Overview]
 
 .Modules
 * xref:module-01-platform-overview.adoc[Exploring the Red Hat cloud extensions Platform]

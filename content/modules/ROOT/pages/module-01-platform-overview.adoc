@@ -1,1 +1,281 @@
-= OCX Platform Orientation
+= Module 1: Exploring the Red Hat cloud extensions Platform
+:source-highlighter: rouge
+:toc: macro
+:toclevels: 1
+
+toc::[]
+
+The infrastructure team at Sovereign Cloud Corp just handed you the keys to a freshly deployed Red Hat cloud extensions environment. Before onboarding any tenants or provisioning workloads, you need to know the platform inside and out. A misconfigured component today means a frustrated tenant tomorrow — and in a government services context, that has real consequences.
+
+In this module, you walk through the deployed Red Hat cloud extensions platform. You verify that every component is healthy, explore the UI, and understand how Keycloak and Kafka tie the system together. By the time you finish, you'll have a clear picture of the platform's architecture and the confidence to move forward.
+
+== Learning objectives
+
+By the end of this module, you'll be able to:
+
+* Verify all Red Hat cloud extensions operators and pods are running in the `osac` namespace
+* Navigate the Red Hat cloud extensions web UI and identify its key dashboard sections
+* Examine the Keycloak realm configuration that governs tenant identity
+* Inspect the Kafka cluster and confirm the messaging infrastructure is healthy
+
+== Exercise 1: Verify the Red Hat cloud extensions namespace
+
+Sovereign Cloud Corp's platform runs in the `osac` namespace on OpenShift. Before exploring anything else, confirm that every operator and service is running. A healthy platform is your baseline.
+
+. On the right switch to the *Terminal* tab.
+. Log in to the OpenShift cluster with cluster admin credentials:
++
+[source,role=execute,subs="attributes+"]
+----
+oc login {openshift_api_url} \
+  --username {openshift_cluster_admin_username} \
+  --password {openshift_cluster_admin_password} \
+  --insecure-skip-tls-verify
+----
+
+. Verify you are targeting the correct cluster and confirm your identity:
++
+[source,role=execute]
+----
+oc whoami
+oc cluster-info
+----
+
+. Check that all pods in the `osac` namespace are running:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get pods -n osac
+----
++
+Expected output: all pods should show `Running` or `Completed` status. No pod should remain in `Pending`, `CrashLoopBackOff`, or `Error` state.
+
+. Confirm all ClusterServiceVersions (CSVs) show `Succeeded`:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get csv -n osac
+----
+
+. List the key services exposed in the namespace:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get svc -n osac
+----
+
+. Retrieve the routes to confirm which endpoints are externally reachable:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get routes -n osac
+----
++
+You should see routes for `osac-ui`, `keycloak`, and any additional services the fulfillment stack exposes.
+
+=== Verify
+
+Confirm your baseline health check passed before moving on:
+
+[source,role=execute,subs="attributes+"]
+----
+oc get pods -n osac
+----
+
+Expected result: All pods `Running` or `Completed`.
+
+== Exercise 2: Explore the Red Hat cloud extensions web UI
+
+With the platform confirmed healthy, log in to the Red Hat cloud extensions web UI. This is the central console that platform engineers and tenant administrators use to manage the environment.
+
+. Switch to the *cloud extensions* tab on the right. Login using the platform admin credentials:
++
+.*Admin user*
+[source,role=copy,subs="attributes+"]
+----
+{osac_admin_user}
+----
++
+.*Admin user password*
+[source,role=copy,subs="attributes+"]
+----
+{osac_admin_password}
+----
+
+. In the browser UI, locate and explore the following sections:
++
+* **Tenants** — list of provisioned tenants. This is the view you land in right after logging in. If you need to go back to the Tenangs view it is under *Administration* in the navigation area on the left. Currently there are only the `shared` and `system` tenants. You will create a new tenant in Module 2.
+* **Catalog** — available service catalog items. Currently empty.
+* **Projects** - list of projects in the environment. Currently only the `default` project exists. You will create new projects in Module 2.
+* **Infrastructure** — platform configuration and integrations.
+** **Storage**
+** **Instance Types**
+** **External IP Pools**
+** **Bare metal instance types**
+** **Disk Images**
+* **Networking** — platform network configuration.
+** **Virtual Networks** - empty because no tenants exist yet.
+** **Security Groups** - empty because no tenants exist yet.
+* **Secrets**
+
+== Exercise 3: Examine the Keycloak realm configuration
+
+Keycloak handles identity management for the entire Red Hat cloud extensions platform. Every tenant gets its own identity context tied to the `osac` realm. Understanding this configuration is essential before you create tenants in Module 2.
+
+. Switch to the *Terminal* tab on the right and confirm the Keycloak pods are running and ready:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get pods -n keycloak
+----
+
+. Check the Keycloak deployment details:
++
+[source,role=execute,subs="attributes+"]
+----
+oc describe deployment keycloak-service -n keycloak | grep -E "(Replicas|Image|Ready)"
+----
+
+. Switch to the *Keycloak* admin console tab on the right.
+. Log in as the *Keycloak admin*:
++
+.*Admin user*
+[source,role=copy,subs="attributes+"]
+----
+{osac_keycloak_admin_user}
+----
++
+.*Admin user password*
+[source,role=copy,subs="attributes+"]
+----
+{osac_keycloak_admin_password}
+----
++
+[TIP]
+====
+You may see the following warning when logging in:
+
+`Your login attempt timed out. Login will start from the beginning.`
+
+This is normal if this environment has been idle for a while. Simply log in again and you will be taken to the Keycloak admin console.
+====
+
+. In the Keycloak admin console, navigate to the `osac` realm:
+.. Click the realm selector in the top-left corner
+.. Select **osac** from the list
+.. Review the **Realm Settings** under **Configuration** — note the session timeouts and token lifetimes configured for government compliance
+
+. From the CLI, check the Keycloak service endpoints:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get endpoints keycloak -n keycloak
+----
+
+. Inspect the Keycloak ConfigMap to review realm import configuration:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get configmaps -n keycloak | grep keycloak
+----
+
+. Confirm Keycloak is serving the `osac` realm:
+
+[source,role=execute,subs="attributes+"]
+----
+curl -sk {osac_keycloak_url}/realms/osac | python3 -c "import sys,json; d=json.load(sys.stdin); print('Realm:', d.get('realm'), '| Public Key available:', bool(d.get('public_key')))"
+----
+
+Expected output:
+----
+Realm: osac | Public Key available: True
+----
+
+== Exercise 4: Inspect the Kafka cluster
+
+Red Hat cloud extensions uses Kafka as its event backbone. Every catalog request, tenant lifecycle event, and workload status update flows through Kafka. A healthy Kafka cluster means the platform can process requests reliably and at scale.
+
+. List Kafka resources in the `osac` namespace:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get kafka -n osac-kafka
+----
+
+. Describe the Kafka custom resource to review its configuration:
++
+[source,role=execute,subs="attributes+"]
+----
+oc describe kafka -n osac-kafka
+----
++
+Look for the `Status` section. There should be no obvious errors.
+
+. Check the Kafka broker pods:
++
+[source,role=execute,subs=attributes ]
+----
+oc get pods -n osac-kafka -l strimzi.io/kind=Kafka
+----
++
+You should see at least one broker pod in `Running` state.
+
+. List the Kafka topics that Red Hat cloud extensions has created:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get kafkatopics -n osac-kafka
+----
++
+Topics prefixed with `osac-` handle platform events. Note the names — you will see these referenced in Module 3 when catalog workloads generate events.
+
+. Check KafkaUsers configured for Red Hat cloud extensions service-to-service communication:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get kafkausers -n osac-kafka
+----
+
+. Review the Kafka cluster status conditions:
++
+[source,role=execute,subs="attributes+"]
+----
+oc get kafka -n osac-kafka -o jsonpath='{.items[0].status.conditions}' | jq
+----
++
+All conditions should show `"type": "Ready"` with `"status": "True"`.
+
+++++
+<div class="validate-button-placeholder" data-module="module-01"></div>
+++++
+
+== Learning outcomes checkpoint
+
+Before moving to Module 2, confirm you can answer these questions:
+
+* Which namespace contains all Red Hat cloud extensions platform components?
+* Which Keycloak realm governs Red Hat cloud extensions tenant identities?
+* What types of events does Kafka carry in the Red Hat cloud extensions platform?
+
+If any of these are unclear, review the relevant exercise above or raise a question with the facilitator.
+
+== Module summary
+
+You have completed the platform orientation for Sovereign Cloud Corp's Red Hat cloud extensions environment.
+
+**What you accomplished:**
+
+* Verified all Red Hat cloud extensions operators, CSVs, and pods are healthy in the `osac` namespace
+* Explored the Red Hat cloud extensions web UI and located the Dashboard, Tenants, Catalog, and Settings sections
+* Confirmed the Keycloak `osac` realm is configured and serving identity tokens
+* Inspected the Kafka cluster, its topics, and its users
+
+**Key takeaways:**
+
+* Every platform operation in Red Hat cloud extensions flows through three core layers: identity (Keycloak), orchestration (osac-operator + fulfillment-service), and messaging (Kafka)
+* Healthy CSVs are a prerequisite — a degraded operator means the platform cannot process tenant or workload requests
+* The `osac` Keycloak realm is the trust anchor for all tenant authentication; its availability is non-negotiable for sovereign operations
+
+**Next steps:**
+
+Module 2 covers tenant management. You will use what you learned here about the Red Hat cloud extensions namespace and Keycloak realm to create and configure multi-tenant environments backed by Ceph storage.
