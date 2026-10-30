@@ -1,6 +1,6 @@
-# osac
+# Introduction to Red Hat cloud extensions
 
-Open Sovereign AI Cloud (or whatever it will be called) hands-on lab
+Hands-on lab covering Red Hat cloud extensions platform health, tenant onboarding, VMaaS, and CaaS.
 
 **Owner:** wkulhanek
 

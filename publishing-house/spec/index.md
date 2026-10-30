@@ -1,10 +1,9 @@
-# Red Hat cloud extensions: Tenant Administration and VM Lifecycle
+# Introduction to Red Hat cloud extensions
 
 Welcome to the project spec. Use the navigation to browse the design and module outlines.
 
 - [Design Spec](design.md)
-- [Module 1 - Osac Orientation](modules/module-01-osac-orientation.md)
-- [Module 2 - Tenant Administration](modules/module-02-tenant-administration.md)
-- [Module 3 - Vm Templates](modules/module-03-vm-templates.md)
-- [Module 4 - Virtual Networking](modules/module-04-virtual-networking.md)
-- [Module 5 - Vm Lifecycle](modules/module-05-vm-lifecycle.md)
+- [Module 1 - Exploring the Red Hat cloud extensions Platform](modules/module-01-platform-overview.md)
+- [Module 2 - Tenant Onboarding and Identity Management](modules/module-02-tenant-management.md)
+- [Module 3 - Virtual Machine as a Service (VMaaS)](modules/module-03-vmaas.md)
+- [Module 4 - Cluster as a Service (CaaS)](modules/module-04-caas.md)

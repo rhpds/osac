@@ -2,8 +2,8 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: osac
-  title: osac
-  description: Open Sovereign AI Cloud (or whatever it will be called) hands-on lab
+  title: Introduction to Red Hat cloud extensions
+  description: Hands-on lab covering Red Hat cloud extensions platform health, tenant onboarding, VMaaS, and CaaS
   annotations:
     ph.rhdp.io/content-type: lab
     ph.rhdp.io/deployment-mode: rhdp_published

@@ -13,27 +13,28 @@ project:
 spec:
   title: Introduction to Red Hat cloud extensions
   learning_objectives:
-  - Verify the health of the Red Hat cloud extensions platform components, including the `osac` operators, Keycloak realm, and Kafka cluster
-  - Create a tenant and onboard its users through federated SSO with just-in-time provisioning
-  - Assign tenant-admin and project viewer roles and verify RBAC enforcement
-  - Publish a `ComputeInstanceCatalogItem` and deploy a virtual machine from the catalog as a tenant administrator
-  - Order a hosted OpenShift cluster on bare-metal capacity as a tenant using the `osac` CLI
+  - Navigate and understand the Red Hat cloud extensions platform architecture and components
+  - Create and manage multi-tenant environments with storage
+  - Use the Red Hat cloud extensions user interface and the `osac` CLI to create catalog items and deploy workloads
+  - Provision virtual machines on demand through the VMaaS service catalog
+  - Order hosted OpenShift clusters using the CaaS catalog
+  - Verify platform health and tenant readiness
   modules:
   - id: module-01
     title: Exploring the Red Hat cloud extensions Platform
-    duration_min: 15
+    duration_min: 10
     status: complete
   - id: module-02
     title: Tenant Onboarding and Identity Management
-    duration_min: 25
+    duration_min: 30
     status: complete
   - id: module-03
     title: Virtual Machine as a Service (VMaaS)
-    duration_min: 20
+    duration_min: 30
     status: complete
   - id: module-04
     title: Cluster as a Service (CaaS)
-    duration_min: 25
+    duration_min: 30
     status: complete
   environment:
     platform: ocp
@@ -64,7 +65,7 @@ spec:
     - rhdp-private.s3.us-east-1.amazonaws.com
     gpu_nodes: 0
     gpu_type: ''
-  duration_hours: 2.0
+  duration_hours: 1.67
   audience: intermediate
 development:
   automation:
@@ -90,37 +91,19 @@ approval_checklist:
       operations but none address the Red Hat cloud extensions abstraction layer: tenant lifecycle, native
       VM templates, virtual network and security group configuration, or the Red Hat cloud extensions
       end-user portal experience.'
-    design_overview: "A 2-hour intermediate lab for Red Hat cloud extensions admins, platform engineers,\
-      \ and ops teams. Covers the full Red Hat cloud extensions operational workflow: tenant administration,\
-      \ VM template creation, virtual networking (networks, subnetworks, security\
-      \ groups), and VM lifecycle \u2014 with both admin and end-user perspectives\
-      \ across 5 modules."
+    design_overview: "A 100-minute intermediate lab for Red Hat cloud extensions admins, platform engineers,\
+      \ and cloud architects. Covers the full Red Hat cloud extensions operational workflow: platform health,\
+      \ tenant onboarding with federated identity and RBAC, VMaaS catalog publishing and VM deployment,\
+      \ and CaaS hosted OpenShift cluster ordering across 4 modules."
     module_summaries:
-    - title: Red Hat cloud extensions Platform Orientation
-      overview: Participants explore the Red Hat cloud extensions admin console, review the NetworkClass
-        model (CUDN vs MetalLB backends), run `osac get networkclass` to inspect
-        available implementations, and verify that both admin and tenant accounts
-        are accessible before beginning hands-on tasks.
-    - title: Tenant Administration
-      overview: Participants create an Red Hat cloud extensions tenant using the two-layer model (fulfillment
-        tenant via `osac create -f` plus a Hub Tenant CR via `oc apply`), configure
-        resource quotas, verify that the Hub Tenant CR resolves storage classes, and
-        assign user accounts with role bindings.
-    - title: Red Hat cloud extensions Compute Catalog
-      overview: Participants create an InstanceType (a named VM size bundle) and
-        publish a ComputeInstanceCatalogItem with field_definitions that control what
-        tenants can customize when ordering a VM, then verify both appear in the
-        tenant VM creation wizard.
-    - title: Virtual Networking
-      overview: Participants create a VirtualNetwork (tenant address space), a Subnet
-        that triggers OVN ClusterUserDefinedNetwork provisioning via AAP, and a
-        SecurityGroup whose rules become Kubernetes NetworkPolicies in the subnet
-        namespace — verifying the cluster-level evidence of each step.
-    - title: Virtual Machine Lifecycle
-      overview: Participants order a VM from the Red Hat cloud extensions catalog, access it via the
-        serial console, allocate and attach a public IP from a provider-defined pool,
-        perform stop/start/restart lifecycle operations, and clean up all tenant
-        resources in the correct teardown order.
+    - title: Exploring the Red Hat cloud extensions Platform
+      overview: Participants verify all Red Hat cloud extensions operators, CSVs, and pods in the `osac` namespace, explore the Red Hat cloud extensions web UI, confirm the Keycloak `osac` realm, and inspect the Kafka cluster, topics, and users.
+    - title: Tenant Onboarding and Identity Management
+      overview: Participants create the `sai-corp` tenant, verify automatic Keycloak organization and namespace provisioning, configure a corporate identity provider for federated SSO, onboard Alice and Bob through device flow login, assign Alice tenant-admin access, grant Bob project viewer access, and verify RBAC enforcement.
+    - title: Virtual Machine as a Service (VMaaS)
+      overview: Participants configure storage for tenant workloads, create a Fedora disk image and compute instance type, publish a `ComputeInstanceCatalogItem`, deploy `portal-vm` as tenant administrator Alice, verify it reaches `RUNNING`, and confirm Bob can view but not create or delete VMs.
+    - title: Cluster as a Service (CaaS)
+      overview: Participants validate Sushy and Metal3 prerequisites, register a libvirt-backed `BareMetalHost`, publish `BareMetalInstanceType`, `DiskImage`, `ClusterVersion`, and `ClusterCatalogItem` objects, order a hosted OpenShift cluster as Alice, apply RHDP `dns.noop` workarounds, and publish the hosted cluster API and console.
     rcars_overlap_pct: 60
     rcars_top_matches:
     - title: Operations and Automation with OpenShift Virtualization
