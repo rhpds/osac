@@ -69,14 +69,28 @@ Participants access a pre-deployed Red Hat cloud extensions environment running 
 - **Topology:** Per-student (each student gets a dedicated Red Hat cloud extensions environment)
 - **Cluster type:** Multinode
 - **OCP version:** 4.22 (minimum)
-- **Control plane:** 3 nodes, 16 vCPU, 32GB RAM each
-- **Workers:** 2 nodes (default; up to 5), 64 vCPU, 128GB RAM, 512GB root disk, 2×2TB extra disks each
-- **Automation:** Ansible (`rhpds.sovereign_cloud.ocp4_workload_osac`)
+- **Control plane:** 3 nodes, 16 vCPU, 32 GiB RAM each
+- **Workers:** 2 nodes, each with 64 cores × 2 sockets = 128 vCPU, 128 GiB RAM, a 512 GiB root disk, and one 1024 GiB additional disk for LVMS (`/dev/vdb`)
+- **Bastion:** 1 VM, 2 vCPU, 2 GiB RAM, 30 GiB root disk (inherited CNV defaults); attached to the cluster network at `10.10.10.1/24`
+- **Bare-metal fabric (BMF):** 1 VM, 32 vCPU, 128 GiB RAM, 512 GiB root disk; attached to the cluster network at `10.10.10.2/24`, hosting the libvirt/Sushy environment used by Module 4
+- **Storage:** External ODF workload plus LVMS enabled for tenant VM storage
+- **Automation:** Ansible (`rhpds.sovereign_cloud.ocp4_workload_osac`), using the `full-ci` installer profile with BMF enabled
+- **Catalog configuration:** [`rh1-2027/lb1657-sovereign-cloud-osac-cnv`](https://github.com/rhpds/agnosticv/tree/master/rh1-2027/lb1657-sovereign-cloud-osac-cnv) on AgnosticV `master`
+- **OSAC release (dev/test):** `osac-release/v0.0.52`
+- **OSAC CLI release (dev/test):** `fulfillment-service/v0.0.125`
+- **Showroom content:** `rhpds/osac`; dev uses `main`, while test uses the snapshot tag `rh1-2027-lb1657-test-1.0.0`
 - **Workshop duration:** ~100 min
-- **Provisioning time:** ~110 min total (~75 min base cluster + ~25 min Red Hat cloud extensions deployment)
+- **Provisioning time:** Not verified by this configuration audit; measure a successful deployment before recording an estimate
 - **AI/MaaS:** None
 - **External services:** github.com, quay.io, mirror.openshift.com, rhdp-private.s3.us-east-1.amazonaws.com (AAP license)
-- **Non-GA products:** None
+- **Non-GA products:** None recorded in the spec; release support status was not verified by this configuration audit
+
+### Infrastructure Review Notes
+
+- Resource sizes above describe guest allocations, not CNV pod overhead or sandbox quotas.
+- The Module 4 worker created inside the BMF host is nested lab capacity, separate from the two hub OpenShift workers.
+- The catalog comment records an AAP license expiry of **2026-12-31**. Verify or renew the license for RH1 2027; the expiry was not independently checked.
+- Configuration alignment does not establish successful provisioning, test execution, or infrastructure approval.
 
 ## Assessment Strategy (Optional)
 

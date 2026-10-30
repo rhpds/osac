@@ -7,7 +7,7 @@ project:
   showroom_type: classic
   intake_type: new
   automation_type: ansible
-  description: Red Hat cloud extensions hands-on lab
+  description: Hands-on lab covering Red Hat cloud extensions platform health, tenant onboarding, VMaaS, and CaaS
   jira_ticket: RHDPCD-1059
   workflow_id: 85c1cfbd-2bae-4a23-a3a8-10ba2344ea0b
 spec:
@@ -15,7 +15,7 @@ spec:
   learning_objectives:
   - Navigate and understand the Red Hat cloud extensions platform architecture and components
   - Create and manage multi-tenant environments with storage
-  - Use the Red Hat cloud extensions user interface and the `osac` CLI to create catalog items and deploy workloads
+  - Use the Red Hat cloud extensions user interface as well as the `osac` CLI to create catalog items and deploy workloads
   - Provision virtual machines on demand through the VMaaS service catalog
   - Order hosted OpenShift clusters using the CaaS catalog
   - Verify platform health and tenant readiness
@@ -47,7 +47,7 @@ spec:
     control_plane_cpu: 16
     control_plane_ram_gb: 32
     worker_count: 2
-    worker_cpu: 64
+    worker_cpu: 128
     worker_ram_gb: 128
     worker_disk_gb: 512
     vms_per_student: []
@@ -83,14 +83,15 @@ tracking:
   pause_reason: null
 approval_checklist:
   content:
-    prerequisites_verifiable: false
+    prerequisites_verifiable: true
     assessment_strategy: "Observation-based \u2014 participants demonstrate expected\
       \ state in Red Hat cloud extensions UI or CLI output"
     catalog_gap: 'Red Hat cloud extensions is a new platform with no existing
-      catalog coverage. All near-matches cover OpenShift Virtualization (KubeVirt)
-      operations but none address the Red Hat cloud extensions abstraction layer: tenant lifecycle, native
-      VM templates, virtual network and security group configuration, or the Red Hat cloud extensions
-      end-user portal experience.'
+      catalog coverage. The recorded near-matches focus on OpenShift Virtualization
+      operations rather than the Red Hat cloud extensions workflow covered here:
+      platform health, tenant onboarding with federated SSO and RBAC, self-service
+      VMaaS catalog publishing and VM deployment, and hosted OpenShift cluster
+      ordering through the CaaS catalog.'
     design_overview: "A 100-minute intermediate lab for Red Hat cloud extensions admins, platform engineers,\
       \ and cloud architects. Covers the full Red Hat cloud extensions operational workflow: platform health,\
       \ tenant onboarding with federated identity and RBAC, VMaaS catalog publishing and VM deployment,\
@@ -145,6 +146,6 @@ approval_checklist:
     peak_environments: null
     cost_per_run_est: ''
     provisioning_time_est: ''
-    agnosticv_base_ci: ''
+    agnosticv_base_ci: rh1-2027/lb1657-sovereign-cloud-osac-cnv
     approved_by: ''
     rejections: []
