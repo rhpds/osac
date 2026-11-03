@@ -100,7 +100,7 @@ approval_checklist:
     - title: Exploring the Red Hat cloud extensions Platform
       overview: Participants verify all Red Hat cloud extensions operators, CSVs, and pods in the `osac` namespace, explore the Red Hat cloud extensions web UI, confirm the Keycloak `osac` realm, and inspect the Kafka cluster, topics, and users.
     - title: Tenant Onboarding and Identity Management
-      overview: Participants create the `sai-corp` tenant, verify automatic Keycloak organization and namespace provisioning, configure a corporate identity provider for federated SSO, onboard Alice and Bob through device flow login, assign Alice tenant-admin access, grant Bob project viewer access, and verify RBAC enforcement.
+      overview: Participants create the `sai-corp` tenant, verify automatic Keycloak organization and namespace provisioning, configure a corporate identity provider for federated SSO, onboard Alice and Bob through device flow login, assign Alice tenant-admin access, grant Bob project viewer access, and verify both the tenant and project boundaries are enforced.
     - title: Virtual Machine as a Service (VMaaS)
       overview: Participants configure storage for tenant workloads, create a Fedora disk image and compute instance type, publish a `ComputeInstanceCatalogItem`, deploy `portal-vm` as tenant administrator Alice, verify it reaches `RUNNING`, and confirm Bob can view but not create or delete VMs.
     - title: Cluster as a Service (CaaS)

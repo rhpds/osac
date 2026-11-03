@@ -2,7 +2,7 @@
 
 ### Brief Overview
 
-Sovereign Cloud Corp has signed a new government agency client: SAI Corp. Participants onboard SAI Corp as a tenant using the `osac` CLI, configure SSO federation through a Keycloak realm that simulates the corporate identity provider, and prove that role-based access control enforces the right boundaries: Alice receives tenant-admin authority and Bob receives read-only project access.
+Sovereign Cloud Corp has signed a new government agency client: SAI Corp. Participants onboard SAI Corp as a tenant using the `osac` CLI, configure SSO federation through a Keycloak realm that simulates the corporate identity provider, and prove that role-based access control enforces the right boundaries: Alice receives tenant-admin authority over the whole tenant, and Bob receives access scoped to a single project.
 
 ### Audience and Time
 
@@ -18,7 +18,7 @@ Sovereign Cloud Corp has signed a new government agency client: SAI Corp. Partic
 - Configure an external identity provider for federated SSO
 - Onboard users through SSO and understand JIT user provisioning
 - Assign tenant-admin and project viewer roles using RoleBindings and ProjectMemberships
-- Verify RBAC enforcement: viewers can read but cannot delete
+- Explain how ProjectMemberships scope access to a single project while RoleBindings grant tenant-wide authority, and verify both boundaries are enforced
 
 ### Lab Structure
 
@@ -50,9 +50,11 @@ Sovereign Cloud Corp has signed a new government agency client: SAI Corp. Partic
    - As the break-glass user, create the `sai-corp-tenant-admin-binding` RoleBinding that assigns Alice the Tenant Administrator role.
    - Confirm Alice has `tenant-admin`, then create the `sai-corp-default-project` project.
    - As Alice, create the `bob-viewer` ProjectMembership granting Bob `PROJECT_MEMBERSHIP_ROLE_VIEWER` and verify it.
-5. Verify RBAC enforcement:
-   - As Bob, confirm `tenant-admin` is absent from `osac whoami` and that `osac get projects` lists the project.
-   - Attempt to delete `sai-corp-default-project` as Bob and confirm the request fails with `PermissionDenied`.
+5. Verify the limits of Bob's access:
+   - As Bob, confirm `tenant-admin` is absent from `osac whoami` and that `osac get projects` lists the project his membership covers.
+   - Confirm the tenant boundary: `osac get users` and creating a project both fail with `PermissionDenied` — the same error Alice hit in step 3 before her RoleBinding.
+   - Confirm the project boundary: Alice creates `sai-corp-restricted-project` with no membership for Bob; it is absent from Bob's `get projects`, `get project` on it fails, and Bob cannot create a ProjectMembership to grant himself access.
+   - Alice deletes `sai-corp-restricted-project`, showing the same operation permitted for a tenant admin and denied for Bob.
 
 ### Learning Outcomes Checkpoint
 
@@ -65,13 +67,15 @@ Participants should have:
 - Onboarded Alice and Bob through device flow login with JIT user provisioning
 - Assigned Alice as tenant-admin using a RoleBinding
 - Created a project and granted Bob viewer access via ProjectMembership
-- Confirmed RBAC enforcement: Bob can list but cannot delete resources
+- Confirmed the tenant boundary: Bob cannot list users or create projects without a RoleBinding
+- Confirmed the project boundary: Bob cannot see, reach, or grant himself access to a project he is not a member of
 
 ### Key Takeaways
 
 - Tenant creation is fully automated: the platform handles Keycloak organization, namespace, and emergency access provisioning in a single operation.
 - Identity federation means corporate users never receive platform passwords; authentication flows through their existing IdP.
-- RBAC operates at two levels: RoleBindings for tenant-wide authority and ProjectMemberships for project-scoped access.
+- RBAC operates at two levels: RoleBindings for tenant-wide authority and ProjectMemberships for project-scoped access. A project membership is a grant scoped to one project, not a weaker form of tenant access; it carries real authority inside that project and none outside it.
+- Users cannot grant themselves access. Memberships and RoleBindings are created by someone who already holds authority, which is what prevents privilege escalation.
 - The break-glass account provides emergency access when the corporate IdP is unavailable; its password must be saved at creation time.
 
 ### Infrastructure Notes
