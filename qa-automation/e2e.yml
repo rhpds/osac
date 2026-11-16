@@ -6,8 +6,7 @@
 # then validated before moving to the next module so failures point at the
 # module that introduced the problem.
 
-- import_playbook: ../runtime-automation/module-01/solve.yml
-- import_playbook: ../runtime-automation/module-01/validate.yml
+# There is nothing to solve in Module 1 - it's all "look at this, look at that".
 
 - import_playbook: ../runtime-automation/module-02/solve.yml
 - import_playbook: ../runtime-automation/module-02/validate.yml
