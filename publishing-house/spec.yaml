@@ -18,23 +18,28 @@ spec:
   - Use the Red Hat cloud extensions user interface as well as the `osac` CLI to create catalog items and deploy workloads
   - Provision virtual machines on demand through the VMaaS service catalog
   - Order hosted OpenShift clusters using the CaaS catalog
+  - Provision dedicated bare-metal servers through the BMaaS catalog
   - Verify platform health and tenant readiness
   modules:
   - id: module-01
-    title: Exploring the Red Hat cloud extensions Platform
-    duration_min: 10
-    status: complete
-  - id: module-02
     title: Tenant Onboarding and Identity Management
     duration_min: 30
     status: complete
-  - id: module-03
+  - id: module-02
     title: Virtual Machine as a Service (VMaaS)
     duration_min: 30
     status: complete
-  - id: module-04
+  - id: module-03
     title: Cluster as a Service (CaaS)
     duration_min: 30
+    status: complete
+  - id: module-04
+    title: Bare Metal as a Service (BMaaS)
+    duration_min: 30
+    status: complete
+  - id: module-05
+    title: Exploring the Red Hat cloud extensions Platform (Optional)
+    duration_min: 10
     status: complete
   environment:
     platform: ocp
@@ -65,7 +70,7 @@ spec:
     - rhdp-private.s3.us-east-1.amazonaws.com
     gpu_nodes: 0
     gpu_type: ''
-  duration_hours: 1.67
+  duration_hours: 2.17
   audience: intermediate
 development:
   automation:
@@ -92,19 +97,22 @@ approval_checklist:
       platform health, tenant onboarding with federated SSO and RBAC, self-service
       VMaaS catalog publishing and VM deployment, and hosted OpenShift cluster
       ordering through the CaaS catalog.'
-    design_overview: "A 100-minute intermediate lab for Red Hat cloud extensions admins, platform engineers,\
-      \ and cloud architects. Covers the full Red Hat cloud extensions operational workflow: platform health,\
-      \ tenant onboarding with federated identity and RBAC, VMaaS catalog publishing and VM deployment,\
-      \ and CaaS hosted OpenShift cluster ordering across 4 modules."
+    design_overview: "A 130-minute intermediate lab for Red Hat cloud extensions admins, platform engineers,\
+      \ and cloud architects. Covers the full Red Hat cloud extensions operational workflow: tenant\
+      \ onboarding with federated identity and RBAC, VMaaS catalog publishing and VM deployment,\
+      \ CaaS hosted OpenShift cluster ordering, and BMaaS dedicated bare-metal provisioning across\
+      \ 4 core modules, plus an optional platform exploration module."
     module_summaries:
-    - title: Exploring the Red Hat cloud extensions Platform
-      overview: Participants verify all Red Hat cloud extensions operators, CSVs, and pods in the `osac` namespace, explore the Red Hat cloud extensions web UI, confirm the Keycloak `osac` realm, and inspect the Kafka cluster, topics, and users.
     - title: Tenant Onboarding and Identity Management
       overview: Participants create the `sai-corp` tenant, verify automatic Keycloak organization and namespace provisioning, configure a corporate identity provider for federated SSO, onboard Alice and Bob through device flow login, assign Alice tenant-admin access, grant Bob project viewer access, and verify both the tenant and project boundaries are enforced.
     - title: Virtual Machine as a Service (VMaaS)
       overview: Participants configure storage for tenant workloads, create a Fedora disk image and compute instance type, publish a `ComputeInstanceCatalogItem`, deploy `portal-vm` as tenant administrator Alice, verify it reaches `RUNNING`, and confirm Bob can view but not create or delete VMs.
     - title: Cluster as a Service (CaaS)
       overview: Participants validate Sushy and Metal3 prerequisites, register a libvirt-backed `BareMetalHost`, publish `BareMetalInstanceType`, `DiskImage`, `ClusterVersion`, and `ClusterCatalogItem` objects, order a hosted OpenShift cluster as Alice, apply RHDP `dns.noop` workarounds, and publish the hosted cluster API and console.
+    - title: Bare Metal as a Service (BMaaS)
+      overview: Participants register a second libvirt-backed `BareMetalHost` and wait for Metal3 to make it available, define a hardware profile that selects BMaaS capacity without claiming CaaS hosts, publish a `BareMetalInstanceCatalogItem`, order a `BareMetalInstance` as tenant administrator Alice, connect to the RHCOS server with an SSH key, halt and restart it through the tenant API, and release it so its host returns to the available inventory.
+    - title: Exploring the Red Hat cloud extensions Platform (Optional)
+      overview: In this optional closing module, participants verify all Red Hat cloud extensions operators, CSVs, and pods in the `osac` namespace, explore the Red Hat cloud extensions web UI, confirm the Keycloak `osac` realm, and inspect the Kafka cluster, topics, and users.
     rcars_overlap_pct: 60
     rcars_top_matches:
     - title: Operations and Automation with OpenShift Virtualization

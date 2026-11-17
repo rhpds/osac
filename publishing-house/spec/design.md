@@ -4,7 +4,7 @@
 
 This lab introduces participants to Red Hat cloud extensions — a sovereign cloud platform built on Red Hat OpenShift that provides multi-tenant self-service infrastructure with integrated identity management, an event backbone, and automated fulfillment. Participants take on the role of a Platform Engineer at Sovereign Cloud Corp, a European government services provider, and onboard a first government tenant, SAI Corp.
 
-The lab covers the full operational workflow: verifying platform health, onboarding a tenant with federated SSO and role-based access control, publishing a virtual machine catalog so tenant users can deploy VMs on demand (VMaaS), and ordering hosted OpenShift clusters through the CaaS catalog — from both the platform administrator and the tenant user perspective.
+The lab covers the full operational workflow: onboarding a tenant with federated SSO and role-based access control, publishing a virtual machine catalog so tenant users can deploy VMs on demand (VMaaS), ordering hosted OpenShift clusters through the CaaS catalog, and provisioning dedicated bare-metal servers through the BMaaS catalog — from both the platform administrator and the tenant user perspective. An optional closing module explores the platform services behind those workflows.
 
 ## Target Audience
 
@@ -26,6 +26,7 @@ By the end of this lab, participants will be able to:
 - Use the Red Hat cloud extensions user interface and the `osac` CLI to create catalog items and deploy workloads
 - Provision virtual machines on demand through the VMaaS service catalog
 - Order hosted OpenShift clusters using the CaaS catalog
+- Provision dedicated bare-metal servers through the BMaaS catalog
 - Verify platform health and tenant readiness
 
 ## Content Type
@@ -44,15 +45,17 @@ Hands-on lab
 
 | Module | Title | Duration |
 |--------|-------|----------|
-| 1 | Exploring the Red Hat cloud extensions Platform | 10 min |
-| 2 | Tenant Onboarding and Identity Management | 30 min |
-| 3 | Virtual Machine as a Service (VMaaS) | 30 min |
-| 4 | Cluster as a Service (CaaS) | 30 min |
-| — | Total workshop | ~100 min |
+| 1 | Tenant Onboarding and Identity Management | 30 min |
+| 2 | Virtual Machine as a Service (VMaaS) | 30 min |
+| 3 | Cluster as a Service (CaaS) | 30 min |
+| 4 | Bare Metal as a Service (BMaaS) | 30 min |
+| — | Core workshop | ~120 min |
+| 5 | Exploring the Red Hat cloud extensions Platform (Optional) | 10 min |
+| — | Total with optional module | ~130 min |
 
-**Module 1** covers platform orientation — verifying the platform components, exploring the web UI, and examining the Keycloak realm and Kafka cluster that underpin tenant identity and eventing.
+**Modules 1–4** follow the natural admin workflow: onboard a tenant with federated SSO and role-based access, publish the VM catalog and deploy a virtual machine as a tenant administrator, provision a bare-metal host to let tenants order hosted OpenShift clusters from the cluster catalog, and publish a bare-metal offering so tenants can order a dedicated RHCOS server.
 
-**Modules 2–4** follow the natural admin workflow: onboard a tenant with federated SSO and role-based access, publish the VM catalog and deploy a virtual machine as a tenant administrator, and provision a bare-metal host to let tenants order hosted OpenShift clusters from the cluster catalog.
+**Module 5** is fully optional and is not a prerequisite for any other module. It covers platform orientation — verifying the platform components, exploring the web UI, and examining the Keycloak realm and Kafka cluster that underpin tenant identity and eventing.
 
 ## Difficulty Level
 
@@ -72,14 +75,14 @@ Participants access a pre-deployed Red Hat cloud extensions environment running 
 - **Control plane:** 3 nodes, 16 vCPU, 32 GiB RAM each
 - **Workers:** 2 nodes, each with 64 cores × 2 sockets = 128 vCPU, 128 GiB RAM, a 512 GiB root disk, and one 1024 GiB additional disk for LVMS (`/dev/vdb`)
 - **Bastion:** 1 VM, 2 vCPU, 2 GiB RAM, 30 GiB root disk (inherited CNV defaults); attached to the cluster network at `10.10.10.1/24`
-- **Bare-metal fabric (BMF):** 1 VM, 32 vCPU, 128 GiB RAM, 512 GiB root disk; attached to the cluster network at `10.10.10.2/24`, hosting the libvirt/Sushy environment used by Module 4
+- **Bare-metal fabric (BMF):** 1 VM, 32 vCPU, 128 GiB RAM, 512 GiB root disk; attached to the cluster network at `10.10.10.2/24`, hosting the libvirt/Sushy environment used by Modules 3 and 4
 - **Storage:** External ODF workload plus LVMS enabled for tenant VM storage
 - **Automation:** Ansible (`rhpds.sovereign_cloud.ocp4_workload_osac`), using the `full-ci` installer profile with BMF enabled
 - **Catalog configuration:** [`rh1-2027/lb1657-sovereign-cloud-osac-cnv`](https://github.com/rhpds/agnosticv/tree/master/rh1-2027/lb1657-sovereign-cloud-osac-cnv) on AgnosticV `master`
 - **OSAC release (dev/test):** `osac-release/v0.0.52`
 - **OSAC CLI release (dev/test):** `fulfillment-service/v0.0.125`
 - **Showroom content:** `rhpds/osac`; dev uses `main`, while test uses the snapshot tag `rh1-2027-lb1657-test-1.0.0`
-- **Workshop duration:** ~100 min
+- **Workshop duration:** ~120 min core, ~130 min including the optional Module 5
 - **Provisioning time:** Not verified by this configuration audit; measure a successful deployment before recording an estimate
 - **AI/MaaS:** None
 - **External services:** github.com, quay.io, mirror.openshift.com, rhdp-private.s3.us-east-1.amazonaws.com (AAP license)
@@ -88,11 +91,11 @@ Participants access a pre-deployed Red Hat cloud extensions environment running 
 ### Infrastructure Review Notes
 
 - Resource sizes above describe guest allocations, not CNV pod overhead or sandbox quotas.
-- The Module 4 worker created inside the BMF host is nested lab capacity, separate from the two hub OpenShift workers.
+- The Module 3 CaaS worker and the Module 4 BMaaS server are both libvirt guests created inside the BMF host. They are nested lab capacity, separate from the two hub OpenShift workers, and each consumes a distinct `BareMetalHost` from the BMF inventory.
 - The catalog comment records an AAP license expiry of **2026-12-31**. Verify or renew the license for RH1 2027; the expiry was not independently checked.
 - Configuration alignment does not establish successful provisioning, test execution, or infrastructure approval.
 
 ## Assessment Strategy (Optional)
 
-Observation-based: participants demonstrate successful completion by showing the expected state in the Red Hat cloud extensions UI or CLI output. Modules 2–4 also provide a *Solve* button that automates the module so participants can catch up.
+Observation-based: participants demonstrate successful completion by showing the expected state in the Red Hat cloud extensions UI or CLI output. Every module also provides a *Solve* button that automates the module so participants can catch up.
 

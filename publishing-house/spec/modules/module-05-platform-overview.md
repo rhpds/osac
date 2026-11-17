@@ -1,4 +1,4 @@
-# Module 01 — Exploring the Red Hat cloud extensions Platform
+# Module 05 — Exploring the Red Hat cloud extensions Platform (Optional)
 
 ### Brief Overview
 
@@ -7,6 +7,8 @@ The infrastructure team at Sovereign Cloud Corp has handed participants the keys
 ### Audience and Time
 
 **Audience**: Platform engineers and cloud architects responsible for operating Red Hat cloud extensions. Participants should have basic OpenShift CLI and console familiarity.
+
+**Prerequisites for this module**: None. This module is fully optional and is not a prerequisite for any other module; participants can take it after the core modules or skip it entirely.
 
 **Duration**: 10 min
 
