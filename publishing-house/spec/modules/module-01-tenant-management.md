@@ -1,4 +1,4 @@
-# Module 02 — Tenant Onboarding and Identity Management
+# Module 01 — Tenant Onboarding and Identity Management
 
 ### Brief Overview
 
@@ -8,7 +8,7 @@ Sovereign Cloud Corp has signed a new government agency client: SAI Corp. Partic
 
 **Audience**: Platform administrators and platform engineers responsible for onboarding tenants and managing identity and access in multi-tenant environments.
 
-**Prerequisites for this module**: Module 01 complete; Red Hat cloud extensions console and `osac` CLI accessible.
+**Prerequisites for this module**: None — this is the first core module. Red Hat cloud extensions console and `osac` CLI accessible.
 
 **Duration**: 30 min
 

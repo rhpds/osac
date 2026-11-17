@@ -1,4 +1,4 @@
-# Module 04 — Cluster as a Service (CaaS)
+# Module 03 — Cluster as a Service (CaaS)
 
 ### Brief Overview
 
@@ -8,7 +8,7 @@ SAI Corp can now provision virtual machines through the VMaaS catalog, but its p
 
 **Audience**: Platform administrators and platform engineers who offer self-service OpenShift clusters to tenants.
 
-**Prerequisites for this module**: Module 02 complete. This module uses the `sai-corp` tenant and the users Alice and Bob created there; without them the exercises fail.
+**Prerequisites for this module**: Module 01 complete. This module uses the `sai-corp` tenant and the users Alice and Bob created there; without them the exercises fail.
 
 **Duration**: 30 min
 

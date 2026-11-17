@@ -1,4 +1,4 @@
-# Module 03 — Virtual Machine as a Service (VMaaS)
+# Module 02 — Virtual Machine as a Service (VMaaS)
 
 ### Brief Overview
 
@@ -8,7 +8,7 @@ SAI Corp's tenant is onboarded, users are federated, and role-based access contr
 
 **Audience**: Platform administrators who build self-service VM provisioning for tenants with Red Hat cloud extensions.
 
-**Prerequisites for this module**: Module 02 complete — the `sai-corp` tenant and users Alice and Bob must exist. Participants who skipped Module 02 can click its *Solve* button.
+**Prerequisites for this module**: Module 01 complete — the `sai-corp` tenant and users Alice and Bob must exist. Participants who skipped Module 01 can click its *Solve* button.
 
 **Duration**: 30 min
 
@@ -33,7 +33,7 @@ SAI Corp's tenant is onboarded, users are federated, and role-based access contr
 ### Detailed Steps
 
 1. Review the platform storage configuration (read-only — the platform provisions all of it):
-   - Run `oc get sc` and identify the three `osac-<tenant>-<tier>` storage classes: `osac-shared-local` and `osac-system-local` from the platform deployment, and `osac-sai-corp-local` created automatically with the tenant in Module 2.
+   - Run `oc get sc` and identify the three `osac-<tenant>-<tier>` storage classes: `osac-shared-local` and `osac-system-local` from the platform deployment, and `osac-sai-corp-local` created automatically with the tenant in Module 1.
    - As the platform administrator, run `osac get storagebackend` to show the single LVMS backend named `local`.
    - Run `osac get storagetier` to show the `local` tier (`BLOCK`, `ACTIVE`) — the name Alice passes to `--boot-disk-storage-tier` in section 4.
    - Optionally confirm the tier under *Infrastructure → Storage Tiers* in the UI.
